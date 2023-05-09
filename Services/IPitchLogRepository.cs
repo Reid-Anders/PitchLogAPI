@@ -1,12 +1,11 @@
-﻿using PitchLogLib;
+﻿using PitchLogAPI.ResourceParameters;
+using PitchLogLib;
 using PitchLogLib.Entities;
 
 namespace PitchLogAPI.Services
 {
     public interface IPitchLogRepository
     {
-        Task<IEnumerable<Grade>> GetGrades();
-
-        Task<IEnumerable<Grade>> GetGrades(GradeType gradeType);
+        Task<PagedList<Grade>> GetGrades(GradesResourceParameters parameters, GradeType gradeType = GradeType.All);
     }
 }

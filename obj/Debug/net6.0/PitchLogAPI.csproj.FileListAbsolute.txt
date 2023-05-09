@@ -7,9 +7,11 @@ C:\Users\reida\source\repos\PitchLogLib\PitchLogAPI\bin\Debug\net6.0\PitchLogAPI
 C:\Users\reida\source\repos\PitchLogLib\PitchLogAPI\bin\Debug\net6.0\PitchLogAPI.pdb
 C:\Users\reida\source\repos\PitchLogLib\PitchLogAPI\bin\Debug\net6.0\AutoMapper.dll
 C:\Users\reida\source\repos\PitchLogLib\PitchLogAPI\bin\Debug\net6.0\AutoMapper.Extensions.Microsoft.DependencyInjection.dll
+C:\Users\reida\source\repos\PitchLogLib\PitchLogAPI\bin\Debug\net6.0\Humanizer.dll
 C:\Users\reida\source\repos\PitchLogLib\PitchLogAPI\bin\Debug\net6.0\Microsoft.Data.SqlClient.dll
 C:\Users\reida\source\repos\PitchLogLib\PitchLogAPI\bin\Debug\net6.0\Microsoft.EntityFrameworkCore.dll
 C:\Users\reida\source\repos\PitchLogLib\PitchLogAPI\bin\Debug\net6.0\Microsoft.EntityFrameworkCore.Abstractions.dll
+C:\Users\reida\source\repos\PitchLogLib\PitchLogAPI\bin\Debug\net6.0\Microsoft.EntityFrameworkCore.Design.dll
 C:\Users\reida\source\repos\PitchLogLib\PitchLogAPI\bin\Debug\net6.0\Microsoft.EntityFrameworkCore.Relational.dll
 C:\Users\reida\source\repos\PitchLogLib\PitchLogAPI\bin\Debug\net6.0\Microsoft.EntityFrameworkCore.SqlServer.dll
 C:\Users\reida\source\repos\PitchLogLib\PitchLogAPI\bin\Debug\net6.0\Microsoft.Extensions.Caching.Memory.dll
@@ -65,5 +67,3 @@ C:\Users\reida\source\repos\PitchLogLib\PitchLogAPI\obj\Debug\net6.0\refint\Pitc
 C:\Users\reida\source\repos\PitchLogLib\PitchLogAPI\obj\Debug\net6.0\PitchLogAPI.pdb
 C:\Users\reida\source\repos\PitchLogLib\PitchLogAPI\obj\Debug\net6.0\PitchLogAPI.genruntimeconfig.cache
 C:\Users\reida\source\repos\PitchLogLib\PitchLogAPI\obj\Debug\net6.0\ref\PitchLogAPI.dll
-C:\Users\reida\source\repos\PitchLogLib\PitchLogAPI\bin\Debug\net6.0\Humanizer.dll
-C:\Users\reida\source\repos\PitchLogLib\PitchLogAPI\bin\Debug\net6.0\Microsoft.EntityFrameworkCore.Design.dll

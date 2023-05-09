@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using PitchLogAPI.ResourceParameters;
 using PitchLogData;
 using PitchLogLib;
 using PitchLogLib.Entities;
@@ -15,14 +16,20 @@ namespace PitchLogAPI.Services
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public async Task<IEnumerable<Grade>> GetGrades()
-        {
-            return await _context.Grades.ToListAsync();
-        }
 
-        public async Task<IEnumerable<Grade>> GetGrades(GradeType type)
+        public async Task<PagedList<Grade>> GetGrades(GradesResourceParameters parameters, GradeType type = GradeType.All)
         {
-            return await _context.Grades.Where(grade => grade.Type == type).ToListAsync();
+            if(type == GradeType.All)
+            {
+                return await PagedList<Grade>.Create(_context.Grades, parameters.PageNum, parameters.PageSize);
+            }
+            else
+            {
+                return await PagedList<Grade>.Create(
+                    _context.Grades.Where(grade => grade.Type == type), 
+                    parameters.PageNum, 
+                    parameters.PageSize);
+            }
         }
     }
 }
