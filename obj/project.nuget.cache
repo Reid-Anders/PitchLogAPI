@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "JQOwO9ljRrol8o7P/tVag5VHQDNoo+YqKzZj3u1YuwLVvTVxHxr/G5W8vn6iP6nzOV37ephhYGbxm1+5/gRvmA==",
+  "dgSpecHash": "eMtvI7e8Fza67CjlLlxbEZQ8e7jzbsFMBN9YOSCju7uvs7GtIEVzvF2dbpTcMdy8ZySLe0vukqpeQDNnZhS3hA==",
   "success": true,
   "projectFilePath": "C:\\Users\\reida\\source\\repos\\PitchLogLib\\PitchLogAPI\\PitchLogAPI.csproj",
   "expectedPackageFiles": [
@@ -16,6 +16,7 @@
     "C:\\Users\\reida\\.nuget\\packages\\microsoft.entityframeworkcore.design\\6.0.16\\microsoft.entityframeworkcore.design.6.0.16.nupkg.sha512",
     "C:\\Users\\reida\\.nuget\\packages\\microsoft.entityframeworkcore.relational\\6.0.16\\microsoft.entityframeworkcore.relational.6.0.16.nupkg.sha512",
     "C:\\Users\\reida\\.nuget\\packages\\microsoft.entityframeworkcore.sqlserver\\6.0.16\\microsoft.entityframeworkcore.sqlserver.6.0.16.nupkg.sha512",
+    "C:\\Users\\reida\\.nuget\\packages\\microsoft.entityframeworkcore.tools\\6.0.16\\microsoft.entityframeworkcore.tools.6.0.16.nupkg.sha512",
     "C:\\Users\\reida\\.nuget\\packages\\microsoft.extensions.apidescription.server\\3.0.0\\microsoft.extensions.apidescription.server.3.0.0.nupkg.sha512",
     "C:\\Users\\reida\\.nuget\\packages\\microsoft.extensions.caching.abstractions\\6.0.0\\microsoft.extensions.caching.abstractions.6.0.0.nupkg.sha512",
     "C:\\Users\\reida\\.nuget\\packages\\microsoft.extensions.caching.memory\\6.0.1\\microsoft.extensions.caching.memory.6.0.1.nupkg.sha512",
