@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace PitchLogAPI
+namespace PitchLogAPI.Helpers
 {
     public class PagedList<T> : List<T>
     {
@@ -19,7 +19,7 @@ namespace PitchLogAPI
             ResourceCount = resourceCount;
             PageNum = pageNum;
             PageSize = pageSize;
-            PageCount = (int) Math.Ceiling(ResourceCount / (double)pageSize);
+            PageCount = (int)Math.Ceiling(ResourceCount / (double)pageSize);
         }
 
         public static async Task<PagedList<T>> Create(IQueryable<T> source, int pageNum, int pageSize)

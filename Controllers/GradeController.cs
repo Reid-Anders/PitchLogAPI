@@ -16,14 +16,12 @@ namespace PitchLogAPI.Controllers
     public class GradeController : ControllerBase
     {
         private readonly IPitchLogRepository _pitchLogRepository;
-        private readonly IPaginationService _paginationService;
         private readonly IMapper _mapper;
 
-        public GradeController(IPitchLogRepository pitchLogRepository, IMapper mapper, IPaginationService paginationService)
+        public GradeController(IPitchLogRepository pitchLogRepository, IMapper mapper)
         {
             _pitchLogRepository = pitchLogRepository ?? throw new ArgumentNullException(nameof(pitchLogRepository));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
-            _paginationService = paginationService ?? throw new ArgumentNullException(nameof(paginationService));
         }
 
         [HttpGet]
@@ -83,8 +81,7 @@ namespace PitchLogAPI.Controllers
                 return NoContent();
             }
 
-            _paginationService.AddPaginationHeaders(Response, 
-                new PaginationMetaData(grades.ResourceCount, grades.PageNum, grades.PageSize, grades.PageCount, Request.GetAbsoluteUri()));
+            Response.AddPaginationHeaders(grades, Request.GetAbsoluteUri());
 
             return Ok(_mapper.Map<IEnumerable<GradeDTO>>(grades));
         }

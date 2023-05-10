@@ -11,7 +11,6 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<IPitchLogRepository, PitchLogRepository>();
-builder.Services.AddTransient<IPaginationService, PaginationService>();
 
 builder.Services.AddDbContext<PitchLogContext>();
 

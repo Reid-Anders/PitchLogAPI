@@ -1,10 +1,5 @@
-﻿namespace PitchLogAPI.Services
+﻿namespace PitchLogAPI.Helpers
 {
-    public interface IPaginationService
-    {
-        void AddPaginationHeaders(HttpResponse response, PaginationMetaData paginationData);
-    }
-
     public class PaginationMetaData
     {
         public string ResourceCount { get; } = string.Empty;
@@ -31,29 +26,29 @@
             PageCount = pageCount.ToString();
         }
 
-        public PaginationMetaData(int resourcecount, int pageNum, int pageSize, int pageCount, string uri) 
+        public PaginationMetaData(int resourcecount, int pageNum, int pageSize, int pageCount, string uri)
             : this(resourcecount, pageNum, pageSize, pageCount)
         {
             if (!string.IsNullOrEmpty(uri))
             {
                 string baseUri = uri.Split('?')[0] + "?";
 
-                if(pageNum < pageCount)
+                if (pageNum < pageCount)
                 {
                     NextPage = baseUri + $"pageNum={pageNum + 1}&pageSize={pageSize}";
                 }
 
-                if(pageNum > 0)
+                if (pageNum > 0)
                 {
                     PrevPage = baseUri + $"pageNum={pageNum - 1}&pageSize={pageSize}";
                 }
 
-                if(pageNum != 0)
+                if (pageNum != 0)
                 {
                     FirstPage = baseUri + $"pageNum=0&pageSize={pageSize}";
                 }
 
-                if(pageNum != pageCount)
+                if (pageNum != pageCount)
                 {
                     LastPage = baseUri + $"pageNum={pageCount}&pageSize={pageSize}";
                 }

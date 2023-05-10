@@ -1,4 +1,5 @@
-﻿using PitchLogAPI.ResourceParameters;
+﻿using PitchLogAPI.Helpers;
+using PitchLogAPI.ResourceParameters;
 using PitchLogLib;
 using PitchLogLib.Entities;
 
