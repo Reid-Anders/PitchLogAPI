@@ -32,5 +32,30 @@ namespace PitchLogAPI.Services
                     parameters.PageSize);
             }
         }
+
+        public async Task<PagedList<Area>> GetAreas(AreasResourceParameters parameters)
+        {
+            return await PagedList<Area>.Create(_context.Areas, parameters.PageNum, parameters.PageSize);
+        }
+
+        public async Task<Area> GetArea(int ID)
+        {
+            return await _context.Areas.FindAsync(ID);
+        }
+
+        public void AddArea(Area area)
+        {
+            if(area == null)
+            {
+                throw new ArgumentNullException(nameof(area));
+            }
+
+            _context.Areas.Add(area);
+        }
+
+        public async Task<bool> SaveAsync()
+        {
+            return await _context.SaveChangesAsync() >= 0;
+        }
     }
 }
