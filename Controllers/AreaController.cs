@@ -21,8 +21,8 @@ namespace PitchLogAPI.Controllers
             _mapper = mapper ?? throw new ArgumentException(nameof(mapper));
         }
 
-
-        [HttpGet]
+        [HttpGet(Name = "GetAreas")]
+        [Produces("application/json", "application/randerson.hateoas+json")]
         public async Task<IActionResult> GetAreas([FromQuery] AreasResourceParameters parameters)
         {
             var areas = await _pitchLogRepository.GetAreas(parameters);
@@ -32,12 +32,26 @@ namespace PitchLogAPI.Controllers
                 return NoContent();
             }
 
+            var areasToReturn = _mapper.Map<IEnumerable<AreaDTO>>(areas);
             Response.AddPaginationHeaders(areas, Request.GetAbsoluteUri());
 
-            return Ok(_mapper.Map<IEnumerable<AreaDTO>>(areas));
+            if (Request.Headers.Accept.Contains("application/randerson.hateoas+json"))
+            {
+                var links = new List<LinkDTO>();
+                links.Add(new LinkDTO(Url.Link("GetAreas", parameters), "self", "GET"));
+
+                return Ok(new
+                {
+                    areas = areasToReturn,
+                    links = links
+                });
+            }
+
+            return Ok(areasToReturn);
         }
 
         [HttpGet("{ID}", Name = "GetArea")]
+        [Produces("application/json", "application/randerson.hateoas+json")]
         public async Task<IActionResult> GetAreaByID(int ID)
         {
             var area = await _pitchLogRepository.GetArea(ID);
@@ -47,10 +61,22 @@ namespace PitchLogAPI.Controllers
                 return NotFound();
             }
 
-            return Ok(_mapper.Map<AreaDTO>(area));
+            var areaToReturn = _mapper.Map<AreaDTO>(area);
+
+            if (Request.IncludeHateoas())
+            {
+                var links = new List<LinkDTO>();
+                links.Add(new LinkDTO(Url.Link("GetArea", new { ID }), "self", "GET"));
+                links.Add(new LinkDTO(Url.Link("CreateArea", null), "create", "POST"));
+
+                return Ok(new ResourceAndLinksDTO(areaToReturn, links));
+            }
+
+            return Ok(areaToReturn);
         }
 
-        [HttpPost]
+        [HttpPost(Name = "CreateArea")]
+        [Produces("application/json", "application/randerson.hateoas+json")]
         public async Task<IActionResult> CreateArea(AreaForCreationDTO areaForCreation)
         {
             var areaToCreate = _mapper.Map<Area>(areaForCreation);
@@ -59,6 +85,14 @@ namespace PitchLogAPI.Controllers
             await _pitchLogRepository.SaveAsync();
 
             var areaToReturn = _mapper.Map<AreaDTO>(areaToCreate);
+
+            if(Request.IncludeHateoas())
+            {
+                var links = new List<LinkDTO>();
+                links.Add(new LinkDTO(Url.Link("GetArea", new { areaToReturn.ID }), "self", "GET"));
+
+                return Ok(new ResourceAndLinksDTO(areaToReturn, links));
+            }
 
             return CreatedAtRoute("GetArea", new { areaToCreate.ID }, areaToReturn);
         }

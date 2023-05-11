@@ -9,5 +9,10 @@
                 Request.Path + "?" + 
                 string.Join('&', Request.Query.Select(kvPair => kvPair.Key + "=" + kvPair.Value));
         }
+
+        public static bool IncludeHateoas(this HttpRequest Request)
+        {
+            return Request.Headers.Accept.Contains("application/randerson.hateoas+json");
+        }
     }
 }

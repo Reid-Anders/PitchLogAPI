@@ -17,7 +17,6 @@ namespace PitchLogAPI.Services
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-
         public async Task<PagedList<Grade>> GetGrades(GradesResourceParameters parameters, GradeType type = GradeType.All)
         {
             if(type == GradeType.All)
@@ -35,7 +34,24 @@ namespace PitchLogAPI.Services
 
         public async Task<PagedList<Area>> GetAreas(AreasResourceParameters parameters)
         {
-            return await PagedList<Area>.Create(_context.Areas, parameters.PageNum, parameters.PageSize);
+            IQueryable<Area> source = _context.Areas;
+
+            if(!string.IsNullOrEmpty(parameters.Municipality))
+            {
+                source = source.Where(area => area.Municipality.ToLower() == parameters.Municipality);
+            }
+
+            if(!string.IsNullOrEmpty(parameters.Region))
+            {
+                source = source.Where(area => area.Region.ToLower() == parameters.Region);
+            }
+
+            if(!string.IsNullOrEmpty(parameters.Country))
+            {
+                source = source.Where(area => area.Country.ToLower() == parameters.Country);
+            }
+
+            return await PagedList<Area>.Create(source, parameters.PageNum, parameters.PageSize);
         }
 
         public async Task<Area> GetArea(int ID)
