@@ -10,7 +10,8 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddScoped<IPitchLogRepository, PitchLogRepository>();
+builder.Services.AddScoped<IGradesRepository, GradesRepository>();
+builder.Services.AddScoped<IAreasRepository, AreasRepository>();
 
 builder.Services.AddDbContext<PitchLogContext>();
 

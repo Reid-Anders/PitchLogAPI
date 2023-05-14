@@ -1,6 +1,6 @@
 ﻿namespace PitchLogAPI.ResourceParameters
 {
-    public class AreasResourceParameters : BaseResourceParameters
+    public class AreasResourceParameters : PaginationResourceParameters
     {
         public string? Municipality 
         { 

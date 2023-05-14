@@ -15,12 +15,12 @@ namespace PitchLogAPI.Controllers
     [ApiController]
     public class GradeController : ControllerBase
     {
-        private readonly IPitchLogRepository _pitchLogRepository;
+        private readonly IGradesRepository _repository;
         private readonly IMapper _mapper;
 
-        public GradeController(IPitchLogRepository pitchLogRepository, IMapper mapper)
+        public GradeController(IGradesRepository repository, IMapper mapper)
         {
-            _pitchLogRepository = pitchLogRepository ?? throw new ArgumentNullException(nameof(pitchLogRepository));
+            _repository = repository ?? throw new ArgumentNullException(nameof(repository));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
@@ -74,7 +74,7 @@ namespace PitchLogAPI.Controllers
 
         private async Task<IActionResult> GetGrades(GradesResourceParameters parameters, GradeType type = GradeType.All)
         {
-            var grades = await _pitchLogRepository.GetGrades(parameters, type);
+            var grades = await _repository.GetCollection(parameters, type);
 
             if (grades.Count() == 0)
             {

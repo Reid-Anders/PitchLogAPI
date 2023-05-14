@@ -1,6 +1,6 @@
 ﻿namespace PitchLogAPI.ResourceParameters
 {
-    public abstract class BaseResourceParameters
+    public abstract class PaginationResourceParameters
     {
         const int MAX_PAGE_SIZE = 100;
 

@@ -12,12 +12,12 @@ namespace PitchLogAPI.Controllers
     [ApiController]
     public class AreaController : ControllerBase
     {
-        private readonly IPitchLogRepository _pitchLogRepository;
+        private readonly IAreasRepository _repository;
         private readonly IMapper _mapper;
 
-        public AreaController(IPitchLogRepository repository, IMapper mapper)
+        public AreaController(IAreasRepository repository, IMapper mapper)
         {
-            _pitchLogRepository = repository ?? throw new ArgumentException(nameof(repository));
+            _repository = repository ?? throw new ArgumentException(nameof(repository));
             _mapper = mapper ?? throw new ArgumentException(nameof(mapper));
         }
 
@@ -25,7 +25,7 @@ namespace PitchLogAPI.Controllers
         [Produces("application/json", "application/randerson.hateoas+json")]
         public async Task<IActionResult> GetAreas([FromQuery] AreasResourceParameters parameters)
         {
-            var areas = await _pitchLogRepository.GetAreas(parameters);
+            var areas = await _repository.GetCollection(parameters);
 
             if(areas.Count() == 0)
             {
@@ -42,7 +42,7 @@ namespace PitchLogAPI.Controllers
 
                 return Ok(new
                 {
-                    areas = areasToReturn,
+                    resource = areasToReturn,
                     links = links
                 });
             }
@@ -54,7 +54,7 @@ namespace PitchLogAPI.Controllers
         [Produces("application/json", "application/randerson.hateoas+json")]
         public async Task<IActionResult> GetAreaByID(int ID)
         {
-            var area = await _pitchLogRepository.GetArea(ID);
+            var area = await _repository.GetByID(ID);
 
             if(area == null)
             {
@@ -80,9 +80,9 @@ namespace PitchLogAPI.Controllers
         public async Task<IActionResult> CreateArea(AreaForCreationDTO areaForCreation)
         {
             var areaToCreate = _mapper.Map<Area>(areaForCreation);
-
-            _pitchLogRepository.AddArea(areaToCreate);
-            await _pitchLogRepository.SaveAsync();
+           
+            _repository.Create(areaToCreate);
+            await _repository.Save();
 
             var areaToReturn = _mapper.Map<AreaDTO>(areaToCreate);
 
