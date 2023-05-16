@@ -21,37 +21,26 @@ namespace PitchLogAPI.Controllers
             _mapper = mapper ?? throw new ArgumentException(nameof(mapper));
         }
 
-        [HttpGet(Name = "GetAreas")]
-        [Produces("application/json", "application/randerson.hateoas+json")]
+        [HttpGet(Name = nameof(GetAreas))]
         public async Task<IActionResult> GetAreas([FromQuery] AreasResourceParameters parameters)
         {
             var areas = await _repository.GetCollection(parameters);
-
-            if(areas.Count() == 0)
-            {
-                return NoContent();
-            }
-
-            var areasToReturn = _mapper.Map<IEnumerable<AreaDTO>>(areas);
             Response.AddPaginationHeaders(areas, Request.GetAbsoluteUri());
 
-            if (Request.Headers.Accept.Contains("application/randerson.hateoas+json"))
+            var areasToReturn = _mapper.Map<IEnumerable<AreaDTO>>(areas);
+            AddLinksToAreas(areasToReturn);
+
+            var links = new List<LinkDTO>();
+            links.Add(new LinkDTO(Url.Link(nameof(GetAreas), parameters), "self", "GET"));
+            
+            return Ok(new
             {
-                var links = new List<LinkDTO>();
-                links.Add(new LinkDTO(Url.Link("GetAreas", parameters), "self", "GET"));
-
-                return Ok(new
-                {
-                    resource = areasToReturn,
-                    links = links
-                });
-            }
-
-            return Ok(areasToReturn);
+                resource = areasToReturn,
+                links
+            });
         }
 
-        [HttpGet("{ID}", Name = "GetArea")]
-        [Produces("application/json", "application/randerson.hateoas+json")]
+        [HttpGet("{ID}", Name = nameof(GetAreaByID))]
         public async Task<IActionResult> GetAreaByID(int ID)
         {
             var area = await _repository.GetByID(ID);
@@ -62,21 +51,12 @@ namespace PitchLogAPI.Controllers
             }
 
             var areaToReturn = _mapper.Map<AreaDTO>(area);
-
-            if (Request.IncludeHateoas())
-            {
-                var links = new List<LinkDTO>();
-                links.Add(new LinkDTO(Url.Link("GetArea", new { ID }), "self", "GET"));
-                links.Add(new LinkDTO(Url.Link("CreateArea", null), "create", "POST"));
-
-                return Ok(new ResourceAndLinksDTO(areaToReturn, links));
-            }
+            AddLinksToArea(areaToReturn);
 
             return Ok(areaToReturn);
         }
 
-        [HttpPost(Name = "CreateArea")]
-        [Produces("application/json", "application/randerson.hateoas+json")]
+        [HttpPost(Name = nameof(CreateArea))]
         public async Task<IActionResult> CreateArea(AreaForCreationDTO areaForCreation)
         {
             var areaToCreate = _mapper.Map<Area>(areaForCreation);
@@ -85,34 +65,44 @@ namespace PitchLogAPI.Controllers
             await _repository.Save();
 
             var areaToReturn = _mapper.Map<AreaDTO>(areaToCreate);
+            AddLinksToArea(areaToReturn);
 
-            if(Request.IncludeHateoas())
-            {
-                var links = new List<LinkDTO>();
-                links.Add(new LinkDTO(Url.Link("GetArea", new { areaToReturn.ID }), "self", "GET"));
-
-                return Ok(new ResourceAndLinksDTO(areaToReturn, links));
-            }
-
-            return CreatedAtRoute("GetArea", new { areaToCreate.ID }, areaToReturn);
+            return CreatedAtRoute(nameof(GetAreaByID), new { areaToCreate.ID }, areaToReturn);
         }
 
-        //[HttpPut]
-        //public async Task<IActionResult> UpdateAreaFull(AreaForUpdateDTO areaForUpdate)
-        //{
+        [HttpPut("{ID}")]
+        public async Task<IActionResult> UpdateAreaFull(AreaForUpdateDTO areaForUpdate)
+        {
+            throw new NotImplementedException();
+        }
 
-        //}
+        [HttpPatch("{ID}")]
+        public async Task<IActionResult> UpdateAreaPartial(AreaForUpdateDTO areaForUpdate)
+        {
+            throw new NotImplementedException();
+        }
 
-        //[HttpPatch("{ID}")]
-        //public async Task<IActionResult> UpdateAreaPartial(AreaForUpdateDTO areaForUpdate)
-        //{
+        [HttpDelete("{ID}")]
+        public async Task<IActionResult> DeleteArea(int ID)
+        {
+            throw new NotImplementedException();
+        }
 
-        //}
+        private void AddLinksToArea(AreaDTO area)
+        {
+            area.Links.Add(new LinkDTO(Url.Link(nameof(GetAreaByID), area.ID), "self", "GET"));
+            area.Links.Add(new LinkDTO(Url.Link(nameof(CreateArea), new { }), "create", "POST"));
+            area.Links.Add(new LinkDTO(Url.Link(nameof(UpdateAreaFull), area.ID), "update", "PUT"));
+            area.Links.Add(new LinkDTO(Url.Link(nameof(UpdateAreaPartial), area.ID), "update_partial", "PATCH"));
+            area.Links.Add(new LinkDTO(Url.Link(nameof(DeleteArea), area.ID), "delete", "DELETE"));
+        }
 
-        //[HttpDelete("{ID}")]
-        //public async Task<IActionResult> DeleteArea(int ID)
-        //{
-
-        //}
+        private void AddLinksToAreas(IEnumerable<AreaDTO> areas)
+        {
+            foreach(var area in areas)
+            {
+                AddLinksToArea(area);
+            }
+        }
     }
 }

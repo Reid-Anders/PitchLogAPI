@@ -1,6 +1,6 @@
 ﻿namespace PitchLogAPI.Model
 {
-    public class AreaDTO
+    public class AreaDTO : LinkedDTO
     {
         public int ID { get; set; }
 

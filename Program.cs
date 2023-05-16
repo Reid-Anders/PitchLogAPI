@@ -1,11 +1,42 @@
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json.Serialization;
 using PitchLogAPI.Services;
 using PitchLogData;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllers();
+builder.Services.AddControllers(configure =>
+{
+    configure.ReturnHttpNotAcceptable = true;
+})
+.AddNewtonsoftJson(options =>
+{
+    options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+})
+.ConfigureApiBehaviorOptions(options =>
+{
+    options.InvalidModelStateResponseFactory = context =>
+    {
+        var problemDetailsFactory = context.HttpContext.RequestServices.GetRequiredService<ProblemDetailsFactory>();
+
+        var validationProblemDetails = problemDetailsFactory.CreateValidationProblemDetails(context.HttpContext, context.ModelState);
+
+        validationProblemDetails.Detail = "See the errors field for details.";
+        validationProblemDetails.Instance = context.HttpContext.Request.Path;
+        validationProblemDetails.Type = "placeholder text";
+        validationProblemDetails.Status = StatusCodes.Status422UnprocessableEntity;
+        validationProblemDetails.Title = "One or more validation errors occurred.";
+
+        return new UnprocessableEntityObjectResult(validationProblemDetails)
+        {
+            ContentTypes = { "application/problem+json" }
+        };
+    };
+});
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

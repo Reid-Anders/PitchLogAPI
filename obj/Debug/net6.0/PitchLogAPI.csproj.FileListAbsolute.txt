@@ -8,6 +8,8 @@ C:\Users\reida\source\repos\PitchLogLib\PitchLogAPI\bin\Debug\net6.0\PitchLogAPI
 C:\Users\reida\source\repos\PitchLogLib\PitchLogAPI\bin\Debug\net6.0\AutoMapper.dll
 C:\Users\reida\source\repos\PitchLogLib\PitchLogAPI\bin\Debug\net6.0\AutoMapper.Extensions.Microsoft.DependencyInjection.dll
 C:\Users\reida\source\repos\PitchLogLib\PitchLogAPI\bin\Debug\net6.0\Humanizer.dll
+C:\Users\reida\source\repos\PitchLogLib\PitchLogAPI\bin\Debug\net6.0\Microsoft.AspNetCore.JsonPatch.dll
+C:\Users\reida\source\repos\PitchLogLib\PitchLogAPI\bin\Debug\net6.0\Microsoft.AspNetCore.Mvc.NewtonsoftJson.dll
 C:\Users\reida\source\repos\PitchLogLib\PitchLogAPI\bin\Debug\net6.0\Microsoft.Data.SqlClient.dll
 C:\Users\reida\source\repos\PitchLogLib\PitchLogAPI\bin\Debug\net6.0\Microsoft.EntityFrameworkCore.dll
 C:\Users\reida\source\repos\PitchLogLib\PitchLogAPI\bin\Debug\net6.0\Microsoft.EntityFrameworkCore.Abstractions.dll
@@ -24,6 +26,8 @@ C:\Users\reida\source\repos\PitchLogLib\PitchLogAPI\bin\Debug\net6.0\Microsoft.I
 C:\Users\reida\source\repos\PitchLogLib\PitchLogAPI\bin\Debug\net6.0\Microsoft.IdentityModel.Tokens.dll
 C:\Users\reida\source\repos\PitchLogLib\PitchLogAPI\bin\Debug\net6.0\Microsoft.OpenApi.dll
 C:\Users\reida\source\repos\PitchLogLib\PitchLogAPI\bin\Debug\net6.0\Microsoft.Win32.SystemEvents.dll
+C:\Users\reida\source\repos\PitchLogLib\PitchLogAPI\bin\Debug\net6.0\Newtonsoft.Json.dll
+C:\Users\reida\source\repos\PitchLogLib\PitchLogAPI\bin\Debug\net6.0\Newtonsoft.Json.Bson.dll
 C:\Users\reida\source\repos\PitchLogLib\PitchLogAPI\bin\Debug\net6.0\Swashbuckle.AspNetCore.Swagger.dll
 C:\Users\reida\source\repos\PitchLogLib\PitchLogAPI\bin\Debug\net6.0\Swashbuckle.AspNetCore.SwaggerGen.dll
 C:\Users\reida\source\repos\PitchLogLib\PitchLogAPI\bin\Debug\net6.0\Swashbuckle.AspNetCore.SwaggerUI.dll
