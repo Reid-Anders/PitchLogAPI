@@ -1,4 +1,5 @@
-﻿using PitchLogAPI.Helpers;
+﻿using Microsoft.EntityFrameworkCore;
+using PitchLogAPI.Helpers;
 using PitchLogAPI.ResourceParameters;
 using PitchLogData;
 using PitchLogLib;
@@ -13,6 +14,11 @@ namespace PitchLogAPI.Services
         public GradesRepository(PitchLogContext context)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
+        }
+
+        public async Task<bool> Exists(int ID)
+        {
+            return await _context.Grades.AnyAsync(grade => grade.ID == ID);
         }
 
         public async Task<Grade> GetByID(int ID)

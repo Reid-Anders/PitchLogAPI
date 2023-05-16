@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using PitchLogAPI.Helpers;
 using PitchLogAPI.Model;
 using PitchLogAPI.ResourceParameters;
@@ -14,11 +15,13 @@ namespace PitchLogAPI.Controllers
     {
         private readonly IAreasRepository _repository;
         private readonly IMapper _mapper;
+        private readonly ProblemDetailsFactory _problemDetailsFactory;
 
-        public AreaController(IAreasRepository repository, IMapper mapper)
+        public AreaController(IAreasRepository repository, IMapper mapper, ProblemDetailsFactory problemDetailsFactory)
         {
-            _repository = repository ?? throw new ArgumentException(nameof(repository));
-            _mapper = mapper ?? throw new ArgumentException(nameof(mapper));
+            _repository = repository ?? throw new ArgumentNullException(nameof(repository));
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+            _problemDetailsFactory = problemDetailsFactory ?? throw new ArgumentNullException(nameof(problemDetailsFactory));
         }
 
         [HttpGet(Name = nameof(GetAreas))]
@@ -59,6 +62,12 @@ namespace PitchLogAPI.Controllers
         [HttpPost(Name = nameof(CreateArea))]
         public async Task<IActionResult> CreateArea(AreaForCreationDTO areaForCreation)
         {
+            if(await _repository.Exists(areaForCreation.Name))
+            {
+                return BadRequest(_problemDetailsFactory.CreateProblemDetails(
+                    HttpContext, statusCode: 400, detail: $"Area with the name {areaForCreation.Name} already exists."));
+            }
+
             var areaToCreate = _mapper.Map<Area>(areaForCreation);
            
             _repository.Create(areaToCreate);
@@ -70,31 +79,42 @@ namespace PitchLogAPI.Controllers
             return CreatedAtRoute(nameof(GetAreaByID), new { areaToCreate.ID }, areaToReturn);
         }
 
-        [HttpPut("{ID}")]
+        [HttpPut("{ID}", Name = nameof(UpdateAreaFull))]
         public async Task<IActionResult> UpdateAreaFull(AreaForUpdateDTO areaForUpdate)
         {
             throw new NotImplementedException();
         }
 
-        [HttpPatch("{ID}")]
+        [HttpPatch("{ID}", Name = nameof(UpdateAreaPartial))]
         public async Task<IActionResult> UpdateAreaPartial(AreaForUpdateDTO areaForUpdate)
         {
             throw new NotImplementedException();
         }
 
-        [HttpDelete("{ID}")]
+        [HttpDelete("{ID}", Name = nameof(DeleteArea))]
         public async Task<IActionResult> DeleteArea(int ID)
         {
-            throw new NotImplementedException();
+            var areaToDelete = await _repository.GetByID(ID);
+
+            if(areaToDelete == null)
+            {
+                return NotFound();
+            }
+
+            _repository.Delete(areaToDelete);
+            _repository.Save();
+
+            return NoContent();
         }
 
         private void AddLinksToArea(AreaDTO area)
         {
-            area.Links.Add(new LinkDTO(Url.Link(nameof(GetAreaByID), area.ID), "self", "GET"));
+            var id = new { area.ID };
+            area.Links.Add(new LinkDTO(Url.Link(nameof(GetAreaByID), id), "self", "GET"));
             area.Links.Add(new LinkDTO(Url.Link(nameof(CreateArea), new { }), "create", "POST"));
-            area.Links.Add(new LinkDTO(Url.Link(nameof(UpdateAreaFull), area.ID), "update", "PUT"));
-            area.Links.Add(new LinkDTO(Url.Link(nameof(UpdateAreaPartial), area.ID), "update_partial", "PATCH"));
-            area.Links.Add(new LinkDTO(Url.Link(nameof(DeleteArea), area.ID), "delete", "DELETE"));
+            area.Links.Add(new LinkDTO(Url.Link(nameof(UpdateAreaFull), id), "update", "PUT"));
+            area.Links.Add(new LinkDTO(Url.Link(nameof(UpdateAreaPartial), id), "update_partial", "PATCH"));
+            area.Links.Add(new LinkDTO(Url.Link(nameof(DeleteArea), id), "delete", "DELETE"));
         }
 
         private void AddLinksToAreas(IEnumerable<AreaDTO> areas)

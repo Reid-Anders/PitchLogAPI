@@ -1,4 +1,5 @@
-﻿using PitchLogAPI.Helpers;
+﻿using Microsoft.EntityFrameworkCore;
+using PitchLogAPI.Helpers;
 using PitchLogAPI.ResourceParameters;
 using PitchLogData;
 using PitchLogLib.Entities;
@@ -12,6 +13,16 @@ namespace PitchLogAPI.Services
         public AreasRepository(PitchLogContext context)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
+        }
+
+        public async Task<bool> Exists(int ID)
+        {
+            return await _context.Areas.AnyAsync(area => area.ID == ID);
+        }
+
+        public async Task<bool> Exists(string name)
+        {
+            return await _context.Areas.AnyAsync(area => area.Name == name);
         }
 
         public async Task<Area> GetByID(int ID)
@@ -56,9 +67,9 @@ namespace PitchLogAPI.Services
             _context.Areas.Add(area);
         }
 
-        public void Delete(int ID)
+        public void Delete(Area ItemToDelete)
         {
-            throw new NotImplementedException();
+            _context.Areas.Remove(ItemToDelete);
         }
 
         public void Update(Area ItemToUpdate)

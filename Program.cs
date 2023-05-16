@@ -26,7 +26,6 @@ builder.Services.AddControllers(configure =>
 
         validationProblemDetails.Detail = "See the errors field for details.";
         validationProblemDetails.Instance = context.HttpContext.Request.Path;
-        validationProblemDetails.Type = "placeholder text";
         validationProblemDetails.Status = StatusCodes.Status422UnprocessableEntity;
         validationProblemDetails.Title = "One or more validation errors occurred.";
 

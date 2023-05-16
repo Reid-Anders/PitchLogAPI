@@ -1,4 +1,6 @@
-﻿namespace PitchLogAPI.Model
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace PitchLogAPI.Model
 {
     public class AreaDTO : LinkedDTO
     {
@@ -15,12 +17,16 @@
 
     public class AreaForCreationDTO
     {
+        [Required]
         public string Name { get; set; } = string.Empty;
 
+        [Required]
         public string Municipality { get; set; } = string.Empty;
 
+        [Required]
         public string Region { get; set; } = string.Empty;
 
+        [Required]
         public string Country { get; set; } = string.Empty;
     }
 

@@ -6,7 +6,7 @@
 
         public void Update(T ItemToUpdate);
 
-        public void Delete(int ID);
+        public void Delete(T ItemToDelete);
 
         public Task<bool> Save();
     }
