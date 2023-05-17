@@ -80,9 +80,27 @@ namespace PitchLogAPI.Controllers
         }
 
         [HttpPut("{ID}", Name = nameof(UpdateAreaFull))]
-        public async Task<IActionResult> UpdateAreaFull(AreaForUpdateDTO areaForUpdate)
+        public async Task<IActionResult> UpdateAreaFull(int ID, AreaForUpdateDTO areaForUpdate)
         {
-            throw new NotImplementedException();
+            var area = await _repository.GetByID(ID);
+
+            if(area == null)
+            {
+                area = _mapper.Map<Area>(areaForUpdate);
+                area.ID = ID;
+
+                _repository.Create(area);
+                await _repository.Save();
+
+                var areaToReturn = _mapper.Map<AreaDTO>(area);
+
+                return CreatedAtRoute(nameof(GetAreaByID), new { ID }, areaToReturn);
+            }
+
+            _mapper.Map(areaForUpdate, area);
+            await _repository.Save();
+
+            return NoContent();
         }
 
         [HttpPatch("{ID}", Name = nameof(UpdateAreaPartial))]

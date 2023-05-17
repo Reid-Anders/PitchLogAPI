@@ -8,6 +8,7 @@ namespace PitchLogAPI.Profiles
         {
             CreateMap<Model.AreaForCreationDTO, PitchLogLib.Entities.Area>();
             CreateMap<PitchLogLib.Entities.Area, Model.AreaDTO>();
+            CreateMap<Model.AreaForUpdateDTO, PitchLogLib.Entities.Area>();
         }
     }
 }
