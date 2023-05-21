@@ -71,3 +71,5 @@ C:\Users\reida\source\repos\PitchLogLib\PitchLogAPI\obj\Debug\net6.0\refint\Pitc
 C:\Users\reida\source\repos\PitchLogLib\PitchLogAPI\obj\Debug\net6.0\PitchLogAPI.pdb
 C:\Users\reida\source\repos\PitchLogLib\PitchLogAPI\obj\Debug\net6.0\PitchLogAPI.genruntimeconfig.cache
 C:\Users\reida\source\repos\PitchLogLib\PitchLogAPI\obj\Debug\net6.0\ref\PitchLogAPI.dll
+C:\Users\reida\source\repos\PitchLogLib\PitchLogAPI\bin\Debug\net6.0\Marvin.Cache.Headers.dll
+C:\Users\reida\source\repos\PitchLogLib\PitchLogAPI\bin\Debug\net6.0\System.Linq.Dynamic.Core.dll

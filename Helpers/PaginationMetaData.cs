@@ -31,26 +31,28 @@
         {
             if (!string.IsNullOrEmpty(uri))
             {
-                string baseUri = uri.Split('?')[0] + "?";
+                var splitUri = uri.Split('?');
+                string baseUri = splitUri[0] + "?";
+                string existingQueryString = splitUri[1];
 
                 if (pageNum < pageCount)
                 {
-                    NextPage = baseUri + $"pageNum={pageNum + 1}&pageSize={pageSize}";
+                    NextPage = baseUri + $"pageNum={pageNum + 1}&pageSize={pageSize}&{existingQueryString}";
                 }
 
                 if (pageNum > 0)
                 {
-                    PrevPage = baseUri + $"pageNum={pageNum - 1}&pageSize={pageSize}";
+                    PrevPage = baseUri + $"pageNum={pageNum - 1}&pageSize={pageSize}&{existingQueryString}";
                 }
 
                 if (pageNum != 0)
                 {
-                    FirstPage = baseUri + $"pageNum=0&pageSize={pageSize}";
+                    FirstPage = baseUri + $"pageNum=0&pageSize={pageSize}&{existingQueryString}";
                 }
 
                 if (pageNum != pageCount)
                 {
-                    LastPage = baseUri + $"pageNum={pageCount}&pageSize={pageSize}";
+                    LastPage = baseUri + $"pageNum={pageCount}&pageSize={pageSize}&{existingQueryString}";
                 }
             }
         }

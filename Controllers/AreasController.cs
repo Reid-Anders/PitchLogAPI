@@ -13,13 +13,13 @@ namespace PitchLogAPI.Controllers
 {
     [Route("api/Areas")]
     [ApiController]
-    public class AreaController : ControllerBase
+    public class AreasController : ControllerBase
     {
         private readonly IAreasRepository _areasRepository;
         private readonly IMapper _mapper;
         private readonly ProblemDetailsFactory _problemDetailsFactory;
 
-        public AreaController(IAreasRepository areasRepository, IMapper mapper, ProblemDetailsFactory problemDetailsFactory)
+        public AreasController(IAreasRepository areasRepository, IMapper mapper, ProblemDetailsFactory problemDetailsFactory)
         {
             _areasRepository = areasRepository ?? throw new ArgumentNullException(nameof(areasRepository));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
@@ -112,12 +112,11 @@ namespace PitchLogAPI.Controllers
 
             if(!TryValidateModel(areaToPatch))
             {
-                return (IActionResult)HttpContext.RequestServices.GetRequiredService<IOptions<ApiBehaviorOptions>>()
+                return HttpContext.RequestServices.GetRequiredService<IOptions<ApiBehaviorOptions>>()
                     .Value.InvalidModelStateResponseFactory(ControllerContext);
             }
 
             _mapper.Map(areaToPatch, area);
-
             await _areasRepository.Save();
 
             return NoContent();

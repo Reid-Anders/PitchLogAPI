@@ -41,17 +41,28 @@ namespace PitchLogAPI.Services
 
             if (!string.IsNullOrEmpty(areaResourceParameters.Municipality))
             {
-                source = source.Where(area => area.Municipality.ToLower() == areaResourceParameters.Municipality);
+                source = source.Where(area => area.Municipality == areaResourceParameters.Municipality);
             }
 
             if (!string.IsNullOrEmpty(areaResourceParameters.Region))
             {
-                source = source.Where(area => area.Region.ToLower() == areaResourceParameters.Region);
+                source = source.Where(area => area.Region == areaResourceParameters.Region);
             }
 
             if (!string.IsNullOrEmpty(areaResourceParameters.Country))
             {
-                source = source.Where(area => area.Country.ToLower() == areaResourceParameters.Country);
+                source = source.Where(area => area.Country == areaResourceParameters.Country);
+            }
+
+            if(!string.IsNullOrEmpty(areaResourceParameters.SearchQuery))
+            {
+                source = source.Where(area => area.Name.Contains(areaResourceParameters.SearchQuery) ||
+                    area.Municipality.Contains(areaResourceParameters.SearchQuery));
+            }
+
+            if(!string.IsNullOrEmpty(areaResourceParameters.OrderBy))
+            {
+                source = source.Sort(areaResourceParameters.OrderBy);
             }
 
             return await PagedList<Area>.Create(source, areaResourceParameters.PageNum, areaResourceParameters.PageSize);

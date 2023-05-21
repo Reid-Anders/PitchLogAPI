@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Marvin.Cache.Headers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -13,18 +14,20 @@ namespace PitchLogAPI.Controllers
 {
     [Route("api/grades")]
     [ApiController]
-    public class GradeController : ControllerBase
+    public class GradesController : ControllerBase
     {
         private readonly IGradesRepository _repository;
         private readonly IMapper _mapper;
 
-        public GradeController(IGradesRepository repository, IMapper mapper)
+        public GradesController(IGradesRepository repository, IMapper mapper)
         {
             _repository = repository ?? throw new ArgumentNullException(nameof(repository));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
         [HttpGet]
+        [HttpCacheExpiration(CacheLocation = CacheLocation.Private, MaxAge = 60)]
+        [HttpCacheValidation(MustRevalidate = true)]
         public async Task<IActionResult> GetAllGrades([FromQuery] GradesResourceParameters parameters)
         {
             return await GetGrades(parameters);

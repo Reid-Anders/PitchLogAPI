@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Serialization;
 using PitchLogAPI.Services;
 using PitchLogData;
+using Marvin.Cache.Headers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -47,6 +48,17 @@ builder.Services.AddDbContext<PitchLogContext>();
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
+builder.Services.AddResponseCaching();
+
+builder.Services.AddHttpCacheHeaders(expirationOptions =>
+{
+    expirationOptions.MaxAge = 30;
+    expirationOptions.CacheLocation = CacheLocation.Private;
+}, validationOptions =>
+{
+    validationOptions.MustRevalidate = true;
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -59,6 +71,10 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+
+app.UseResponseCaching();
+
+app.UseHttpCacheHeaders();
 
 app.MapControllers();
 
