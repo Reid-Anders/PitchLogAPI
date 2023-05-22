@@ -26,7 +26,7 @@ namespace PitchLogAPI.Services
             return await _context.Grades.FindAsync(ID);
         }
 
-        public async Task<PagedList<Grade>> GetCollection(PaginationResourceParameters parameters)
+        public async Task<PagedList<Grade>> GetCollection(BaseResourceParameters parameters)
         {
             return await PagedList<Grade>.Create(
                     _context.Grades,
@@ -34,7 +34,7 @@ namespace PitchLogAPI.Services
                     parameters.PageSize);
         }
 
-        public async Task<PagedList<Grade>> GetCollection(PaginationResourceParameters parameters, GradeType type)
+        public async Task<PagedList<Grade>> GetCollection(BaseResourceParameters parameters, GradeType type)
         {
             if (type == GradeType.All)
             {

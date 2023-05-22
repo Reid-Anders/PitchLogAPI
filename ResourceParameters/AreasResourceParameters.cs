@@ -1,6 +1,6 @@
 ﻿namespace PitchLogAPI.ResourceParameters
 {
-    public class AreasResourceParameters : PaginationResourceParameters
+    public class AreasResourceParameters : BaseResourceParameters
     {
         public string? Municipality
         {
@@ -22,9 +22,5 @@
             set => _country = value;
         }
         private string? _country = null;
-
-        public string? SearchQuery { get; set; }
-
-        public string? OrderBy { get; set; }
     }
 }

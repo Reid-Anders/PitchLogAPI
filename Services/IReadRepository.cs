@@ -9,6 +9,6 @@ namespace PitchLogAPI.Services
 
         public Task<T> GetByID(int ID);
 
-        public Task<PagedList<T>> GetCollection(PaginationResourceParameters parameters);
+        public Task<PagedList<T>> GetCollection(BaseResourceParameters parameters);
     }
 }

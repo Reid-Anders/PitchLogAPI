@@ -7,6 +7,6 @@ namespace PitchLogAPI.Services
 {
     public interface IGradesRepository : IReadRepository<Grade>
     {
-        Task<PagedList<Grade>> GetCollection(PaginationResourceParameters parameters, GradeType type);
+        Task<PagedList<Grade>> GetCollection(BaseResourceParameters parameters, GradeType type);
     }
 }

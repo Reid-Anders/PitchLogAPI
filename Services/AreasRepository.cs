@@ -6,13 +6,11 @@ using PitchLogLib.Entities;
 
 namespace PitchLogAPI.Services
 {
-    public class AreasRepository : IAreasRepository
+    public class AreasRepository : BaseRepository, IAreasRepository
     {
-        private readonly PitchLogContext _context;
-
-        public AreasRepository(PitchLogContext context)
+        public AreasRepository(PitchLogContext context) : base(context)
         {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
+
         }
 
         public async Task<bool> Exists(int ID)
@@ -30,7 +28,7 @@ namespace PitchLogAPI.Services
             return await _context.Areas.FindAsync(ID);
         }
 
-        public async Task<PagedList<Area>> GetCollection(PaginationResourceParameters parameters)
+        public async Task<PagedList<Area>> GetCollection(BaseResourceParameters parameters)
         {
             if(parameters is not AreasResourceParameters areaResourceParameters)
             {
@@ -68,29 +66,29 @@ namespace PitchLogAPI.Services
             return await PagedList<Area>.Create(source, areaResourceParameters.PageNum, areaResourceParameters.PageSize);
         }
 
-        public void Create(Area area)
+        public void Create(Area ItemToCreate)
         {
-            if (area == null)
+            if (ItemToCreate == null)
             {
-                throw new ArgumentNullException(nameof(area));
+                throw new ArgumentNullException(nameof(ItemToCreate));
             }
 
-            _context.Areas.Add(area);
+            _context.Areas.Add(ItemToCreate);
         }
 
         public void Delete(Area ItemToDelete)
         {
+            if(ItemToDelete == null)
+            {
+                throw new ArgumentNullException(nameof(ItemToDelete));
+            }
+
             _context.Areas.Remove(ItemToDelete);
         }
 
         public void Update(Area ItemToUpdate)
         {
             throw new NotImplementedException();
-        }
-
-        public async Task<bool> Save()
-        {
-            return await _context.SaveChangesAsync() >= 0;
         }
     }
 }

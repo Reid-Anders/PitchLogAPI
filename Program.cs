@@ -43,6 +43,7 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<IGradesRepository, GradesRepository>();
 builder.Services.AddScoped<IAreasRepository, AreasRepository>();
+builder.Services.AddScoped<ISectorsRepository, SectorsRepository>();
 
 builder.Services.AddDbContext<PitchLogContext>();
 

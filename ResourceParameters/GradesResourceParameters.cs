@@ -1,6 +1,6 @@
 ﻿namespace PitchLogAPI.ResourceParameters
 {
-    public class GradesResourceParameters : PaginationResourceParameters
+    public class GradesResourceParameters : BaseResourceParameters
     {
     }
 }
