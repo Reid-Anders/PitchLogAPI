@@ -27,31 +27,27 @@ namespace PitchLogAPI.Services
 
             IQueryable<Sector> source = _context.Sectors;
 
-            if(!string.IsNullOrEmpty(sectorsResourceParameters.Name))
+            if(!string.IsNullOrEmpty(sectorsResourceParameters.Approach))
             {
-                source.Where(sector => sector.Name == sectorsResourceParameters.Name);
-            }
-
-            if(sectorsResourceParameters.Approach != null)
-            {
-                source.Where(sector => sector.Approach == sectorsResourceParameters.Approach);
+                var value = new string[] { "gt:24", "lt:26" };
+                source = source.ApplyComparisonFilter("Approach", value);
             }
 
             if(!string.IsNullOrEmpty(sectorsResourceParameters.Aspect))
             {
-                source.Where(sector => sector.Aspect.ToString() == sectorsResourceParameters.Aspect);
+                source = source.Where(sector => sector.Aspect.ToString() == sectorsResourceParameters.Aspect);
             }
 
             if(!string.IsNullOrEmpty(sectorsResourceParameters.SearchQuery))
             {
-                source.Where(sector => sector.Name.Contains(sectorsResourceParameters.SearchQuery) ||
+                source = source.Where(sector => sector.Name.Contains(sectorsResourceParameters.SearchQuery) ||
                     sector.Area.Name.Contains(sectorsResourceParameters.SearchQuery) ||
                     sector.Area.Municipality.Contains(sectorsResourceParameters.SearchQuery));
             }
 
             if(!string.IsNullOrEmpty(sectorsResourceParameters.OrderBy))
             {
-                source.Sort(sectorsResourceParameters.OrderBy);
+                source = source.ApplySort(sectorsResourceParameters.OrderBy);
             }
 
             return PagedList<Sector>.Create(source, sectorsResourceParameters.PageNum, sectorsResourceParameters.PageSize);

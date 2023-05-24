@@ -1,4 +1,6 @@
-﻿namespace PitchLogAPI.Model
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace PitchLogAPI.Model
 {
     public class SectorDTO : LinkedDTO
     {
@@ -15,7 +17,14 @@
 
     public class SectorForCreationDTO
     {
+        [Required]
+        [MaxLength(256)]
+        public string Name { get; set; }
 
+        [Range(0,1024)]
+        public int? Approach { get; set; }
+
+        public string Aspect { get; set; }
     }
 
     public class SectorForUpdateDTO

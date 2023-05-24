@@ -60,7 +60,7 @@ namespace PitchLogAPI.Services
 
             if(!string.IsNullOrEmpty(areaResourceParameters.OrderBy))
             {
-                source = source.Sort(areaResourceParameters.OrderBy);
+                source = source.ApplySort(areaResourceParameters.OrderBy);
             }
 
             return await PagedList<Area>.Create(source, areaResourceParameters.PageNum, areaResourceParameters.PageSize);

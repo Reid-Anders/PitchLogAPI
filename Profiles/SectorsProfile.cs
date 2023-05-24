@@ -11,6 +11,7 @@ namespace PitchLogAPI.Profiles
                 {
                     options.MapFrom(src => src.Aspect.ToString());
                 });
+            CreateMap<Model.SectorForCreationDTO, PitchLogLib.Entities.Sector>();
         }
     }
 }

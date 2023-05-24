@@ -2,14 +2,12 @@
 {
     public class SectorsResourceParameters : BaseResourceParameters
     {
-        public string? Name
+        public string? Approach
         {
-            get => _name?.Trim();
-            set => _name = value;
+            get => _approach?.Trim();
+            set => _approach = value;
         }
-        public string? _name = null;
-
-        public int? Approach { get; set; }
+        private string? _approach = null;
 
         public string? Aspect
         {
