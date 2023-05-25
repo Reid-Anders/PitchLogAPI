@@ -27,10 +27,9 @@ namespace PitchLogAPI.Services
 
             IQueryable<Sector> source = _context.Sectors;
 
-            if(!string.IsNullOrEmpty(sectorsResourceParameters.Approach))
+            if(sectorsResourceParameters.Approach.Count() > 0)
             {
-                var value = new string[] { "gt:24", "lt:26" };
-                source = source.ApplyComparisonFilter("Approach", value);
+                source = source.ApplyComparisonFilter("Approach", sectorsResourceParameters.Approach);
             }
 
             if(!string.IsNullOrEmpty(sectorsResourceParameters.Aspect))

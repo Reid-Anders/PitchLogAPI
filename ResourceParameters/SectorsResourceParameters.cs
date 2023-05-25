@@ -1,13 +1,12 @@
-﻿namespace PitchLogAPI.ResourceParameters
+﻿using Microsoft.AspNetCore.Mvc;
+using PitchLogAPI.Attributes;
+
+namespace PitchLogAPI.ResourceParameters
 {
     public class SectorsResourceParameters : BaseResourceParameters
     {
-        public string? Approach
-        {
-            get => _approach?.Trim();
-            set => _approach = value;
-        }
-        private string? _approach = null;
+        [ModelBinder(typeof(MultiFieldModelBinder))]
+        public IEnumerable<string>? Approach { get; set; } = new List<string>();
 
         public string? Aspect
         {

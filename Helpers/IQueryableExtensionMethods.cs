@@ -6,7 +6,7 @@ namespace PitchLogAPI.Helpers
 {
     public static class IQueryableExtensionMethods
     {
-        public static IQueryable<T> ApplyComparisonFilter<T>(this IQueryable<T> query, string propertyName, string[] comparisonClauses)
+        public static IQueryable<T> ApplyComparisonFilter<T>(this IQueryable<T> query, string propertyName, IEnumerable<string> comparisonClauses)
         {
             if (query == null)
             {
