@@ -6,6 +6,7 @@ using PitchLogAPI.ResourceParameters;
 using PitchLogAPI.Services;
 using PitchLogLib.Entities;
 using PitchLogAPI.Helpers;
+using Microsoft.Extensions.Options;
 
 namespace PitchLogAPI.Controllers
 {
@@ -98,23 +99,77 @@ namespace PitchLogAPI.Controllers
             return CreatedAtRoute(nameof(GetSectorByID), new { areaID, sectorToReturn.ID }, sectorToReturn);
         }
 
-        //[HttpPut("{ID}", Name = nameof(UpdateAreaFull))]
-        //public async Task<IActionResult> UpdateAreaFull(int areaID, int ID, SectorForUpdateDTO areaForUpdate)
-        //{
+        [HttpPut("{ID}", Name = nameof(UpdateAreaFull))]
+        public async Task<IActionResult> UpdateAreaFull(int areaID, int ID, SectorForUpdateDTO sectorForUpdate)
+        {
+            if(!await _areasRepository.Exists(areaID))
+            {
+                return NotFound();
+            }
 
-        //}
+            var sector = await _sectorsRepository.GetByID(ID);
 
-        //[HttpPatch("{ID}", Name = nameof(UpdateSectorPartial))]
-        //public async Task<IActionResult> UpdateSectorPartial(int areaID, int ID, JsonPatchDocument<SectorForUpdateDTO> patchDocument)
-        //{
+            if(sector == null)
+            {
+                return NotFound();
+            }
 
-        //}
+            _mapper.Map(sectorForUpdate, sector);
+            await _sectorsRepository.Save();
 
-        //[HttpDelete("{ID}", Name = nameof(DeleteSector))]
-        //public async Task<IActionResult> DeleteSector(int areaID, int ID)
-        //{
+            return NoContent();
+        }
 
-        //}
+        [HttpPatch("{ID}", Name = nameof(UpdateSectorPartial))]
+        public async Task<IActionResult> UpdateSectorPartial(int areaID, int ID, JsonPatchDocument<SectorForUpdateDTO> patchDocument)
+        {
+            if(!await _areasRepository.Exists(areaID))
+            {
+                return NotFound();
+            }
+
+            var sector = await _sectorsRepository.GetByID(ID);
+
+            if(sector == null)
+            {
+                return NotFound();
+            }
+
+            var sectorToPatch = _mapper.Map<SectorForUpdateDTO>(sector);
+            patchDocument.ApplyTo(sectorToPatch);
+
+            if(!TryValidateModel(sectorToPatch))
+            {
+                return HttpContext.RequestServices.GetRequiredService<IOptions<ApiBehaviorOptions>>()
+                    .Value.InvalidModelStateResponseFactory(ControllerContext);
+            }
+
+            _mapper.Map(sectorToPatch, sector);
+            await _sectorsRepository.Save();
+
+            return NoContent();
+        }
+
+        [HttpDelete("{ID}", Name = nameof(DeleteSector))]
+        public async Task<IActionResult> DeleteSector(int areaID, int ID)
+        {
+            if(!await _areasRepository.Exists(areaID))
+            {
+                return NotFound();
+            }
+
+            var sector = await _sectorsRepository.GetByID(ID);
+
+            if(sector == null)
+            {
+                return NotFound();
+            }
+
+            _sectorsRepository.Delete(sector);
+            await _sectorsRepository.Save();
+
+            return NotFound();
+        }
 
         protected override void AddLinksToResource(LinkedDTO dto)
         {

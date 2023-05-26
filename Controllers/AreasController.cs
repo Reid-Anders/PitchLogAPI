@@ -133,7 +133,7 @@ namespace PitchLogAPI.Controllers
             }
 
             _areasRepository.Delete(areaToDelete);
-            _areasRepository.Save();
+            await _areasRepository.Save();
 
             return NoContent();
         }
