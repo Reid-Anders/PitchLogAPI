@@ -2,9 +2,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Serialization;
-using PitchLogAPI.Services;
+using PitchLogAPI.Repositories;
 using PitchLogData;
 using Marvin.Cache.Headers;
+using PitchLogAPI.Services;
+using PitchLogAPI.Helpers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +14,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers(configure =>
 {
     configure.ReturnHttpNotAcceptable = true;
+    configure.Filters.Add<ResourceNotFoundExceptionFilter>();
 })
 .AddNewtonsoftJson(options =>
 {
@@ -44,6 +47,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IGradesRepository, GradesRepository>();
 builder.Services.AddScoped<IAreasRepository, AreasRepository>();
 builder.Services.AddScoped<ISectorsRepository, SectorsRepository>();
+
+builder.Services.AddScoped<IAreasService, AreasService>();
 
 builder.Services.AddDbContext<PitchLogContext>();
 

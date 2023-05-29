@@ -1,8 +1,8 @@
 ﻿using PitchLogLib.Entities;
 
-namespace PitchLogAPI.Services
+namespace PitchLogAPI.Repositories
 {
-    public interface IAreasRepository : ICrudRepository<Area>
+    public interface IAreasRepository : IRepository<Area>
     {
         public Task<bool> Exists(string name);
     }

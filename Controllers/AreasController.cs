@@ -6,24 +6,29 @@ using Microsoft.Extensions.Options;
 using PitchLogAPI.Helpers;
 using PitchLogAPI.Model;
 using PitchLogAPI.ResourceParameters;
-using PitchLogAPI.Services;
+using PitchLogAPI.Repositories;
 using PitchLogLib.Entities;
+using PitchLogAPI.Services;
 
 namespace PitchLogAPI.Controllers
 {
     [Route("api/Areas")]
     [ApiController]
-    public class AreasController : ControllerBase
+    public class AreasController : BasePitchLogController
     {
         private readonly IAreasRepository _areasRepository;
         private readonly IMapper _mapper;
         private readonly ProblemDetailsFactory _problemDetailsFactory;
 
-        public AreasController(IAreasRepository areasRepository, IMapper mapper, ProblemDetailsFactory problemDetailsFactory)
+        private readonly IAreasService _areasService;
+
+        public AreasController(IAreasRepository areasRepository, IMapper mapper, ProblemDetailsFactory problemDetailsFactory, IAreasService areasService)
         {
             _areasRepository = areasRepository ?? throw new ArgumentNullException(nameof(areasRepository));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _problemDetailsFactory = problemDetailsFactory ?? throw new ArgumentNullException(nameof(problemDetailsFactory));
+
+            _areasService = areasService ?? throw new ArgumentNullException(nameof(areasService));
         }
 
         [HttpGet(Name = nameof(GetAreas))]
@@ -33,7 +38,7 @@ namespace PitchLogAPI.Controllers
             Response.AddPaginationHeaders(areas, Request.GetAbsoluteUri());
 
             var areasToReturn = _mapper.Map<IEnumerable<AreaDTO>>(areas);
-            AddLinksToAreas(areasToReturn);
+            AddLinksToResources(areasToReturn);
 
             var links = new List<LinkDTO>();
             links.Add(new LinkDTO(Url.Link(nameof(GetAreas), parameters), "self", "GET"));
@@ -48,15 +53,8 @@ namespace PitchLogAPI.Controllers
         [HttpGet("{ID}", Name = nameof(GetAreaByID))]
         public async Task<IActionResult> GetAreaByID(int ID)
         {
-            var area = await _areasRepository.GetByID(ID);
-
-            if(area == null)
-            {
-                return NotFound();
-            }
-
-            var areaToReturn = _mapper.Map<AreaDTO>(area);
-            AddLinksToArea(areaToReturn);
+            var areaToReturn = await _areasService.GetByID(ID);
+            AddLinksToResource(areaToReturn);
 
             return Ok(areaToReturn);
         }
@@ -73,10 +71,10 @@ namespace PitchLogAPI.Controllers
             var areaToCreate = _mapper.Map<Area>(areaForCreation);
            
             _areasRepository.Create(areaToCreate);
-            await _areasRepository.Save();
+            await _areasRepository.SaveChanges();
 
             var areaToReturn = _mapper.Map<AreaDTO>(areaToCreate);
-            AddLinksToArea(areaToReturn);
+            AddLinksToResource(areaToReturn);
 
             return CreatedAtRoute(nameof(GetAreaByID), new { areaToCreate.ID }, areaToReturn);
         }
@@ -92,7 +90,7 @@ namespace PitchLogAPI.Controllers
             }
 
             _mapper.Map(areaForUpdate, area);
-            await _areasRepository.Save();
+            await _areasRepository.SaveChanges();
 
             return NoContent();
         }
@@ -117,7 +115,7 @@ namespace PitchLogAPI.Controllers
             }
 
             _mapper.Map(areaToPatch, area);
-            await _areasRepository.Save();
+            await _areasRepository.SaveChanges();
 
             return NoContent();
         }
@@ -133,27 +131,24 @@ namespace PitchLogAPI.Controllers
             }
 
             _areasRepository.Delete(areaToDelete);
-            await _areasRepository.Save();
+            await _areasRepository.SaveChanges();
 
             return NoContent();
         }
 
-        private void AddLinksToArea(AreaDTO area)
+        protected override void AddLinksToResource(BaseDTO dto)
         {
+            if(dto is not AreaDTO area)
+            {
+                return;
+            }
+
             var id = new { area.ID };
             area.Links.Add(new LinkDTO(Url.Link(nameof(GetAreaByID), id), "self", "GET"));
             area.Links.Add(new LinkDTO(Url.Link(nameof(CreateArea), new { }), "create", "POST"));
             area.Links.Add(new LinkDTO(Url.Link(nameof(UpdateAreaFull), id), "update", "PUT"));
             area.Links.Add(new LinkDTO(Url.Link(nameof(UpdateAreaPartial), id), "update_partial", "PATCH"));
             area.Links.Add(new LinkDTO(Url.Link(nameof(DeleteArea), id), "delete", "DELETE"));
-        }
-
-        private void AddLinksToAreas(IEnumerable<AreaDTO> areas)
-        {
-            foreach(var area in areas)
-            {
-                AddLinksToArea(area);
-            }
         }
     }
 }

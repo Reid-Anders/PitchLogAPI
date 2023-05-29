@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using PitchLogAPI.Model;
 using PitchLogAPI.ResourceParameters;
-using PitchLogAPI.Services;
+using PitchLogAPI.Repositories;
 using PitchLogLib.Entities;
 using PitchLogAPI.Helpers;
 using Microsoft.Extensions.Options;
@@ -92,15 +92,15 @@ namespace PitchLogAPI.Controllers
             sector.AreaID = areaID;
 
             _sectorsRepository.Create(sector);
-            await _sectorsRepository.Save();
+            await _sectorsRepository.SaveChanges();
 
             var sectorToReturn = _mapper.Map<SectorDTO>(sector);
 
             return CreatedAtRoute(nameof(GetSectorByID), new { areaID, sectorToReturn.ID }, sectorToReturn);
         }
 
-        [HttpPut("{ID}", Name = nameof(UpdateAreaFull))]
-        public async Task<IActionResult> UpdateAreaFull(int areaID, int ID, SectorForUpdateDTO sectorForUpdate)
+        [HttpPut("{ID}", Name = nameof(UpdateSectorFull))]
+        public async Task<IActionResult> UpdateSectorFull(int areaID, int ID, SectorForUpdateDTO sectorForUpdate)
         {
             if(!await _areasRepository.Exists(areaID))
             {
@@ -115,7 +115,7 @@ namespace PitchLogAPI.Controllers
             }
 
             _mapper.Map(sectorForUpdate, sector);
-            await _sectorsRepository.Save();
+            await _sectorsRepository.SaveChanges();
 
             return NoContent();
         }
@@ -145,7 +145,7 @@ namespace PitchLogAPI.Controllers
             }
 
             _mapper.Map(sectorToPatch, sector);
-            await _sectorsRepository.Save();
+            await _sectorsRepository.SaveChanges();
 
             return NoContent();
         }
@@ -166,12 +166,12 @@ namespace PitchLogAPI.Controllers
             }
 
             _sectorsRepository.Delete(sector);
-            await _sectorsRepository.Save();
+            await _sectorsRepository.SaveChanges();
 
             return NotFound();
         }
 
-        protected override void AddLinksToResource(LinkedDTO dto)
+        protected override void AddLinksToResource(BaseDTO dto)
         {
             if(dto is not SectorDTO sectorDTO)
             {
