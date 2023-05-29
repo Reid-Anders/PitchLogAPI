@@ -1,4 +1,4 @@
-﻿using PitchLogAPI.Services;
+﻿using PitchLogAPI.Repositories;
 
 namespace PitchLogAPI.Helpers
 {

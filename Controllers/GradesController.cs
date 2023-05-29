@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using PitchLogAPI.Helpers;
 using PitchLogAPI.Model;
 using PitchLogAPI.ResourceParameters;
-using PitchLogAPI.Services;
+using PitchLogAPI.Repositories;
 using PitchLogData;
 using PitchLogLib;
 

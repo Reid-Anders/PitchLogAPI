@@ -5,28 +5,21 @@ using PitchLogData;
 using PitchLogLib;
 using PitchLogLib.Entities;
 
-namespace PitchLogAPI.Services
+namespace PitchLogAPI.Repositories
 {
-    public class GradesRepository : IGradesRepository
+    public class GradesRepository : BaseRepository<Grade>, IGradesRepository
     {
-        private readonly PitchLogContext _context;
-
-        public GradesRepository(PitchLogContext context)
+        public GradesRepository(PitchLogContext context) : base(context)
         {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
+
         }
 
-        public async Task<bool> Exists(int ID)
+        public override async Task<bool> Exists(int ID)
         {
             return await _context.Grades.AnyAsync(grade => grade.ID == ID);
         }
 
-        public async Task<Grade> GetByID(int ID)
-        {
-            return await _context.Grades.FindAsync(ID);
-        }
-
-        public async Task<PagedList<Grade>> GetCollection(BaseResourceParameters parameters)
+        public override async Task<PagedList<Grade>> GetCollection(BaseResourceParameters parameters)
         {
             return await PagedList<Grade>.Create(
                     _context.Grades,

@@ -2,7 +2,7 @@
 
 namespace PitchLogAPI.Model
 {
-    public class LinkedDTO
+    public class BaseDTO
     {
         public IList<LinkDTO> Links { get; set; } = new List<LinkDTO>();
     }

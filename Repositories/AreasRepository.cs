@@ -4,16 +4,16 @@ using PitchLogAPI.ResourceParameters;
 using PitchLogData;
 using PitchLogLib.Entities;
 
-namespace PitchLogAPI.Services
+namespace PitchLogAPI.Repositories
 {
-    public class AreasRepository : BaseRepository, IAreasRepository
+    public class AreasRepository : BaseRepository<Area>, IAreasRepository
     {
         public AreasRepository(PitchLogContext context) : base(context)
         {
 
         }
 
-        public async Task<bool> Exists(int ID)
+        public override async Task<bool> Exists(int ID)
         {
             return await _context.Areas.AnyAsync(area => area.ID == ID);
         }
@@ -23,12 +23,7 @@ namespace PitchLogAPI.Services
             return await _context.Areas.AnyAsync(area => area.Name == name);
         }
 
-        public async Task<Area> GetByID(int ID)
-        {
-            return await _context.Areas.FindAsync(ID);
-        }
-
-        public async Task<PagedList<Area>> GetCollection(BaseResourceParameters parameters)
+        public override Task<PagedList<Area>> GetCollection(BaseResourceParameters parameters)
         {
             if(parameters is not AreasResourceParameters areaResourceParameters)
             {
@@ -63,32 +58,7 @@ namespace PitchLogAPI.Services
                 source = source.ApplySort(areaResourceParameters.OrderBy);
             }
 
-            return await PagedList<Area>.Create(source, areaResourceParameters.PageNum, areaResourceParameters.PageSize);
-        }
-
-        public void Create(Area ItemToCreate)
-        {
-            if (ItemToCreate == null)
-            {
-                throw new ArgumentNullException(nameof(ItemToCreate));
-            }
-
-            _context.Areas.Add(ItemToCreate);
-        }
-
-        public void Delete(Area ItemToDelete)
-        {
-            if(ItemToDelete == null)
-            {
-                throw new ArgumentNullException(nameof(ItemToDelete));
-            }
-
-            _context.Areas.Remove(ItemToDelete);
-        }
-
-        public void Update(Area ItemToUpdate)
-        {
-            throw new NotImplementedException();
+            return PagedList<Area>.Create(source, areaResourceParameters.PageNum, areaResourceParameters.PageSize);
         }
     }
 }

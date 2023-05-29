@@ -4,21 +4,21 @@ using PitchLogAPI.ResourceParameters;
 using PitchLogData;
 using PitchLogLib.Entities;
 
-namespace PitchLogAPI.Services
+namespace PitchLogAPI.Repositories
 {
-    public class SectorsRepository : BaseRepository, ISectorsRepository
+    public class SectorsRepository : BaseRepository<Sector>, ISectorsRepository
     {
         public SectorsRepository(PitchLogContext context) : base(context)
         {
 
         }
 
-        public async Task<Sector> GetByID(int ID)
+        public override async Task<bool> Exists(int ID)
         {
-            return await _context.Sectors.FindAsync(ID);
+            return await _context.Sectors.AnyAsync(sector => sector.ID == ID);
         }
 
-        public Task<PagedList<Sector>> GetCollection(BaseResourceParameters parameters)
+        public override Task<PagedList<Sector>> GetCollection(BaseResourceParameters parameters)
         {
             if(parameters is not SectorsResourceParameters sectorsResourceParameters)
             {
@@ -50,37 +50,6 @@ namespace PitchLogAPI.Services
             }
 
             return PagedList<Sector>.Create(source, sectorsResourceParameters.PageNum, sectorsResourceParameters.PageSize);
-        }
-
-        public void Create(Sector ItemToCreate)
-        {
-            if(ItemToCreate == null)
-            {
-                throw new ArgumentNullException(nameof(ItemToCreate));
-            }
-
-            _context.Add(ItemToCreate);
-        }
-
-        public void Delete(Sector ItemToDelete)
-        {
-            if (ItemToDelete == null)
-            {
-                throw new ArgumentNullException(nameof(ItemToDelete));
-            }
-
-            _context.Add(ItemToDelete);
-        }
-
-        public async Task<bool> Exists(int ID)
-        {
-            return await _context.Sectors.AnyAsync(sector => sector.ID == ID);
-        }
-
-
-        public void Update(Sector ItemToUpdate)
-        {
-            throw new NotImplementedException();
         }
     }
 }
