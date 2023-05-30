@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace PitchLogAPI.Repositories
 {
-    public abstract class BaseRepository<T> where T : EntityBase
+    public abstract class BaseRepository<T> : IRepository<T> where T : EntityBase
     { 
         protected readonly PitchLogContext _context;
 
@@ -54,7 +54,5 @@ namespace PitchLogAPI.Repositories
         }
 
         public abstract Task<bool> Exists(int ID);
-
-        public abstract Task<PagedList<T>> GetCollection(BaseResourceParameters parameters);
     }
 }

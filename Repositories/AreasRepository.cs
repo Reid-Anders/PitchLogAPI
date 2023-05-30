@@ -23,42 +23,37 @@ namespace PitchLogAPI.Repositories
             return await _context.Areas.AnyAsync(area => area.Name == name);
         }
 
-        public override Task<PagedList<Area>> GetCollection(BaseResourceParameters parameters)
+        public Task<PagedList<Area>> GetAreas(AreasResourceParameters parameters)
         {
-            if(parameters is not AreasResourceParameters areaResourceParameters)
-            {
-                throw new InvalidOperationException(nameof(parameters));
-            }
-
             IQueryable<Area> source = _context.Areas;
 
-            if (!string.IsNullOrEmpty(areaResourceParameters.Municipality))
+            if (!string.IsNullOrEmpty(parameters.Municipality))
             {
-                source = source.Where(area => area.Municipality == areaResourceParameters.Municipality);
+                source = source.Where(area => area.Municipality == parameters.Municipality);
             }
 
-            if (!string.IsNullOrEmpty(areaResourceParameters.Region))
+            if (!string.IsNullOrEmpty(parameters.Region))
             {
-                source = source.Where(area => area.Region == areaResourceParameters.Region);
+                source = source.Where(area => area.Region == parameters.Region);
             }
 
-            if (!string.IsNullOrEmpty(areaResourceParameters.Country))
+            if (!string.IsNullOrEmpty(parameters.Country))
             {
-                source = source.Where(area => area.Country == areaResourceParameters.Country);
+                source = source.Where(area => area.Country == parameters.Country);
             }
 
-            if(!string.IsNullOrEmpty(areaResourceParameters.SearchQuery))
+            if(!string.IsNullOrEmpty(parameters.SearchQuery))
             {
-                source = source.Where(area => area.Name.Contains(areaResourceParameters.SearchQuery) ||
-                    area.Municipality.Contains(areaResourceParameters.SearchQuery));
+                source = source.Where(area => area.Name.Contains(parameters.SearchQuery) ||
+                    area.Municipality.Contains(parameters.SearchQuery));
             }
 
-            if(!string.IsNullOrEmpty(areaResourceParameters.OrderBy))
+            if(!string.IsNullOrEmpty(parameters.OrderBy))
             {
-                source = source.ApplySort(areaResourceParameters.OrderBy);
+                source = source.ApplySort(parameters.OrderBy);
             }
 
-            return PagedList<Area>.Create(source, areaResourceParameters.PageNum, areaResourceParameters.PageSize);
+            return PagedList<Area>.Create(source, parameters.PageNum, parameters.PageSize);
         }
     }
 }

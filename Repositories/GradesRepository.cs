@@ -19,7 +19,7 @@ namespace PitchLogAPI.Repositories
             return await _context.Grades.AnyAsync(grade => grade.ID == ID);
         }
 
-        public override async Task<PagedList<Grade>> GetCollection(BaseResourceParameters parameters)
+        public async Task<PagedList<Grade>> GetGrades(GradesResourceParameters parameters)
         {
             return await PagedList<Grade>.Create(
                     _context.Grades,
@@ -27,7 +27,7 @@ namespace PitchLogAPI.Repositories
                     parameters.PageSize);
         }
 
-        public async Task<PagedList<Grade>> GetCollection(BaseResourceParameters parameters, GradeType type)
+        public async Task<PagedList<Grade>> GetGrades(GradesResourceParameters parameters, GradeType type)
         {
             if (type == GradeType.All)
             {

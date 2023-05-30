@@ -77,7 +77,7 @@ namespace PitchLogAPI.Controllers
 
         private async Task<IActionResult> GetGrades(GradesResourceParameters parameters, GradeType type = GradeType.All)
         {
-            var grades = await _repository.GetCollection(parameters, type);
+            var grades = await _repository.GetGrades(parameters, type);
 
             if (grades.Count() == 0)
             {

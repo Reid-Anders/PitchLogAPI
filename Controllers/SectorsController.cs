@@ -62,7 +62,7 @@ namespace PitchLogAPI.Controllers
 
             this.areaID = areaID;
 
-            var sectors = await _sectorsRepository.GetCollection(parameters);
+            var sectors = await _sectorsRepository.GetSectors(areaID, parameters);
             Response.AddPaginationHeaders(sectors);
 
             var sectorsToReturn = _mapper.Map<IEnumerable<SectorDTO>>(sectors);

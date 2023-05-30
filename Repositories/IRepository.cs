@@ -10,8 +10,6 @@ namespace PitchLogAPI.Repositories
 
         public Task<T> GetByID(int ID);
 
-        public Task<PagedList<T>> GetCollection(BaseResourceParameters parameters);
-
         public void Create(T ItemToCreate);
 
         public void Update(T ItemToUpdate);
