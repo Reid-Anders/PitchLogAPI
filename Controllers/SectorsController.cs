@@ -47,7 +47,7 @@ namespace PitchLogAPI.Controllers
             }
 
             var sectorToReturn = _mapper.Map<SectorDTO>(sector);
-            AddLinksToResource(sectorToReturn);
+            LinkResource(sectorToReturn);
 
             return Ok(sectorToReturn);
         }
@@ -66,7 +66,7 @@ namespace PitchLogAPI.Controllers
             Response.AddPaginationHeaders(sectors);
 
             var sectorsToReturn = _mapper.Map<IEnumerable<SectorDTO>>(sectors);
-            AddLinksToResources(sectorsToReturn);
+            LinkResources(sectorsToReturn);
 
             var links = new List<LinkDTO>();
             links.Add(new LinkDTO(Url.Link(nameof(GetSectors), parameters), "self", "GET"));
@@ -171,7 +171,7 @@ namespace PitchLogAPI.Controllers
             return NotFound();
         }
 
-        protected override void AddLinksToResource(BaseDTO dto)
+        protected override void LinkResource(BaseDTO dto)
         {
             if(dto is not SectorDTO sectorDTO)
             {

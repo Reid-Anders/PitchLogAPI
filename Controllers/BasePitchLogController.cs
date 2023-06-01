@@ -6,20 +6,20 @@ namespace PitchLogAPI.Controllers
 {
     public class BasePitchLogController : ControllerBase
     {
-        protected virtual void AddLinksToResource(BaseDTO dto)
+        protected virtual void LinkResource(BaseDTO dto)
         {
             //implementation optional
         }
 
-        protected virtual void AddLinksToResources(IEnumerable<BaseDTO> dtoList)
+        protected virtual void LinkResources(IEnumerable<BaseDTO> dtoList)
         {
             foreach(var dto in dtoList)
             {
-                AddLinksToResource(dto);
+                LinkResource(dto);
             }
         }
 
-        protected virtual void AddLinksToResourceCollection(IEnumerable<BaseDTO> dtoList)
+        protected virtual void LinkCollection(IEnumerable<BaseDTO> dtoList)
         {
             //implementation optional
         }

@@ -18,7 +18,10 @@ namespace PitchLogAPI.Controllers
     {
         private readonly IAreasService _areasService;
 
-        public AreasController(IAreasRepository areasRepository, IMapper mapper, ProblemDetailsFactory problemDetailsFactory, IAreasService areasService)
+        public AreasController(IAreasService areasService,
+            IMapper mapper,
+            ProblemDetailsFactory problemDetailsFactory,
+            ILinkFactory linkFactory) : base(linkFactory)
         {
             _areasService = areasService ?? throw new ArgumentNullException(nameof(areasService));
         }
@@ -29,9 +32,9 @@ namespace PitchLogAPI.Controllers
             var areasToReturn = await _areasService.GetAreas(parameters);
             Response.AddPaginationHeaders(areasToReturn, Request.GetAbsoluteUri());
 
-            AddLinksToResources(areasToReturn);
+            LinkResources(areasToReturn);
 
-            var links = new List<LinkDTO>();
+            var links = LinkCollection(parameters);
             links.Add(new LinkDTO(Url.Link(nameof(GetAreas), parameters), "self", "GET"));
             
             return Ok(new
@@ -126,7 +129,7 @@ namespace PitchLogAPI.Controllers
         //    return NoContent();
         //}
 
-        protected override void AddLinksToResource(BaseDTO dto)
+        protected override void LinkResource(BaseDTO dto)
         {
             if(dto is not AreaDTO area)
             {
@@ -140,6 +143,18 @@ namespace PitchLogAPI.Controllers
             //area.Links.Add(new LinkDTO(Url.Link(nameof(UpdateAreaPartial), id), "update_partial", "PATCH"));
             //area.Links.Add(new LinkDTO(Url.Link(nameof(DeleteArea), id), "delete", "DELETE"));
             area.Links.Add(new LinkDTO(Url.Link(nameof(SectorsController.GetSectors), new { areaID = area.ID }), "sectors", "GET"));
+        }
+
+        protected override IList<LinkDTO> LinkCollection(BaseResourceParameters parameters)
+        {
+            var links = new List<LinkDTO>();
+
+            if(parameters is AreasResourceParameters areasParams)
+            {
+                li
+            }
+
+            return links;
         }
     }
 }
