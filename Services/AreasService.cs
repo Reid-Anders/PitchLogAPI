@@ -6,6 +6,7 @@ using PitchLogAPI.Helpers;
 using PitchLogAPI.Model;
 using PitchLogAPI.Repositories;
 using PitchLogAPI.ResourceParameters;
+using PitchLogLib.Entities;
 
 namespace PitchLogAPI.Services
 {
@@ -16,9 +17,8 @@ namespace PitchLogAPI.Services
         public AreasService(IAreasRepository areasRepository, 
             IMapper mapper, 
             IHttpContextAccessor contextAccessor,
-            ProblemDetailsFactory problemDetailsFactory,
-            LinkGenerator linkGenerator) :
-            base(mapper, contextAccessor, problemDetailsFactory, linkGenerator)
+            ProblemDetailsFactory problemDetailsFactory) :
+            base(mapper, contextAccessor, problemDetailsFactory)
         { 
             _areasRepository = areasRepository ?? throw new ArgumentNullException(nameof(areasRepository));
         }
@@ -29,11 +29,10 @@ namespace PitchLogAPI.Services
 
             if(area == null)
             {
-                throw new ResourceNotFoundException($"Area with id {ID} not found.");
+                throw new RestException($"Area with id {ID} not found.");
             }
 
             var areaToReturn = _mapper.Map<AreaDTO>(area);
-            LinkResource(areaToReturn);
 
             return areaToReturn;
         }
@@ -44,20 +43,20 @@ namespace PitchLogAPI.Services
             return _mapper.Map<PagedList<AreaDTO>>(areas);
         }
 
-        public override void LinkResource(BaseDTO resource)
+        public async Task<AreaDTO> CreateArea(AreaForCreationDTO areaForCreation)
         {
-            if (resource is not AreaDTO area)
+            if (await _areasRepository.Exists(areaForCreation.Name))
             {
-                return;
+                throw new ResourceNotFoundException(_problemDetailsFactory.CreateProblemDetails(
+                    _contextAccessor.HttpContext, statusCode: 409, detail: $"Area with the name {areaForCreation.Name} already exists."));
             }
 
-            var id = new { area.ID };
-            area.Links.Add(new LinkDTO(_linkGenerator.GetPathByName(_contextAccessor.HttpContext, nameof(AreasController.GetAreaByID), id), "self", "GET"));
-            //area.Links.Add(new LinkDTO(Url.Link(nameof(CreateArea), new { }), "create", "POST"));
-            //area.Links.Add(new LinkDTO(Url.Link(nameof(UpdateAreaFull), id), "update", "PUT"));
-            //area.Links.Add(new LinkDTO(Url.Link(nameof(UpdateAreaPartial), id), "update_partial", "PATCH"));
-            //area.Links.Add(new LinkDTO(Url.Link(nameof(DeleteArea), id), "delete", "DELETE"));
-            area.Links.Add(new LinkDTO(_linkGenerator.GetPathByName(_contextAccessor.HttpContext, nameof(SectorsController.GetSectors), new { areaID = area.ID }), "sectors", "GET"));
+            var areaToCreate = _mapper.Map<Area>(areaForCreation);
+
+            _areasRepository.Create(areaToCreate);
+            await _areasRepository.SaveChanges();
+
+            return _mapper.Map<AreaDTO>(areaToCreate);
         }
     }
 }

@@ -9,5 +9,7 @@ namespace PitchLogAPI.Services
         public Task<AreaDTO> GetByID(int ID);
 
         public Task<PagedList<AreaDTO>> GetAreas(AreasResourceParameters parameters);
+
+        public Task<AreaDTO> CreateArea(AreaForCreationDTO areaToCreate);
     }
 }

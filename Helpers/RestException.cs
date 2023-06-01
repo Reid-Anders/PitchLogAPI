@@ -1,9 +1,14 @@
-﻿namespace PitchLogAPI.Helpers
+﻿using Microsoft.AspNetCore.Mvc;
+
+namespace PitchLogAPI.Helpers
 {
     public class RestException : Exception
     {
-        public RestException(string? message) : base(message)
+        public ProblemDetails Details { get; private set; }
+
+        public RestException(ProblemDetails details)
         {
+            Details = details;
         }
     }
 }

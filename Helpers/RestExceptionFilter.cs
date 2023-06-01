@@ -3,11 +3,11 @@ using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace PitchLogAPI.Helpers
 {
-    public class ResourceNotFoundExceptionFilter : IActionFilter
+    public class RestExceptionFilter : IActionFilter
     {
         public void OnActionExecuted(ActionExecutedContext context)
         {
-            if(context.Exception is ResourceNotFoundException ex)
+            if(context.Exception is RestException ex)
             {
                 context.Result = new NotFoundResult();
                 context.ExceptionHandled = true;

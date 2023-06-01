@@ -14,7 +14,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers(configure =>
 {
     configure.ReturnHttpNotAcceptable = true;
-    configure.Filters.Add<ResourceNotFoundExceptionFilter>();
+    configure.Filters.Add<RestExceptionFilter>();
 })
 .AddNewtonsoftJson(options =>
 {

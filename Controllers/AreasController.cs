@@ -33,9 +33,7 @@ namespace PitchLogAPI.Controllers
             Response.AddPaginationHeaders(areasToReturn, Request.GetAbsoluteUri());
 
             LinkResources(areasToReturn);
-
             var links = LinkCollection(parameters);
-            links.Add(new LinkDTO(Url.Link(nameof(GetAreas), parameters), "self", "GET"));
             
             return Ok(new
             {
@@ -52,25 +50,14 @@ namespace PitchLogAPI.Controllers
             return Ok(areaToReturn);
         }
 
-        //[HttpPost(Name = nameof(CreateArea))]
-        //public async Task<IActionResult> CreateArea(AreaForCreationDTO areaForCreation)
-        //{
-        //    if(await _areasRepository.Exists(areaForCreation.Name))
-        //    {
-        //        return BadRequest(_problemDetailsFactory.CreateProblemDetails(
-        //            HttpContext, statusCode: 400, detail: $"Area with the name {areaForCreation.Name} already exists."));
-        //    }
+        [HttpPost(Name = nameof(CreateArea))]
+        public async Task<IActionResult> CreateArea(AreaForCreationDTO areaForCreation)
+        {
 
-        //    var areaToCreate = _mapper.Map<Area>(areaForCreation);
-           
-        //    _areasRepository.Create(areaToCreate);
-        //    await _areasRepository.SaveChanges();
+            AddLinksToResource(areaToReturn);
 
-        //    var areaToReturn = _mapper.Map<AreaDTO>(areaToCreate);
-        //    AddLinksToResource(areaToReturn);
-
-        //    return CreatedAtRoute(nameof(GetAreaByID), new { areaToCreate.ID }, areaToReturn);
-        //}
+            return CreatedAtRoute(nameof(GetAreaByID), new { areaToCreate.ID }, areaToReturn);
+        }
 
         //[HttpPut("{ID}", Name = nameof(UpdateAreaFull))]
         //public async Task<IActionResult> UpdateAreaFull(int ID, AreaForUpdateDTO areaForUpdate)
@@ -137,22 +124,19 @@ namespace PitchLogAPI.Controllers
             }
 
             var id = new { area.ID };
-            area.Links.Add(new LinkDTO(Url.Link(nameof(GetAreaByID), id), "self", "GET"));
-            //area.Links.Add(new LinkDTO(Url.Link(nameof(CreateArea), new { }), "create", "POST"));
+            area.Links.Add(_linkFactory.Get(nameof(GetAreaByID), id));
             //area.Links.Add(new LinkDTO(Url.Link(nameof(UpdateAreaFull), id), "update", "PUT"));
             //area.Links.Add(new LinkDTO(Url.Link(nameof(UpdateAreaPartial), id), "update_partial", "PATCH"));
             //area.Links.Add(new LinkDTO(Url.Link(nameof(DeleteArea), id), "delete", "DELETE"));
-            area.Links.Add(new LinkDTO(Url.Link(nameof(SectorsController.GetSectors), new { areaID = area.ID }), "sectors", "GET"));
+            area.Links.Add(_linkFactory.Get(nameof(SectorsController.GetSectors), new { areaID = area.ID }, "sectors"));
         }
 
         protected override IList<LinkDTO> LinkCollection(BaseResourceParameters parameters)
         {
             var links = new List<LinkDTO>();
 
-            if(parameters is AreasResourceParameters areasParams)
-            {
-                li
-            }
+            links.Add(_linkFactory.Get(nameof(GetAreas), parameters));
+            //links.Add(_linkFactory.Post(nameof(CreateArea)));
 
             return links;
         }
