@@ -76,7 +76,7 @@ namespace PitchLogAPI.Services
             return await _areasRepository.SaveChanges();
         }
 
-        public async Task<bool> PatchArea(int ID, JsonPatchDocument<AreaForUpdateDTO> patchDocument)
+        public async Task<bool> PatchArea(int ID, JsonPatchDocument<AreaForUpdateDTO> patchDocument, ControllerBase controller)
         {
             var area = await _areasRepository.GetByID(ID);
 
@@ -88,15 +88,15 @@ namespace PitchLogAPI.Services
             var areaToPatch = _mapper.Map<AreaForUpdateDTO>(area);
             patchDocument.ApplyTo(areaToPatch);
 
-            if(TryValidateModel(areaToPatch, out var results))
+            if(!controller.TryValidateModel(areaToPatch))
             {
-                _mapper.Map(areaToPatch, area);
-                return await _areasRepository.SaveChanges();
+                throw new RestException(_problemDetailsFactory.CreateValidationProblemDetails(
+                    _contextAccessor.HttpContext,
+                    controller.ModelState));
             }
-            else
-            {
-                return false;
-            }
+
+            _mapper.Map(areaToPatch, area);
+            return await _areasRepository.SaveChanges();
         }
 
         public async Task<bool> DeleteArea(int ID)

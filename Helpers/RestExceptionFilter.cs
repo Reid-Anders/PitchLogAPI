@@ -9,7 +9,8 @@ namespace PitchLogAPI.Helpers
         {
             if(context.Exception is RestException ex)
             {
-                context.Result = new NotFoundResult();
+                context.Result = new ObjectResult(ex.Details);
+
                 context.ExceptionHandled = true;
             }
         }

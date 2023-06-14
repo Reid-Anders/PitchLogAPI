@@ -72,7 +72,7 @@ namespace PitchLogAPI.Controllers
         [HttpPatch("{ID}", Name = nameof(PatchArea))]
         public async Task<IActionResult> PatchArea(int ID, JsonPatchDocument<AreaForUpdateDTO> patchDocument)
         {
-            await _areasService.PatchArea(ID, patchDocument);
+            await _areasService.PatchArea(ID, patchDocument, this);
             return NoContent();
         }
 

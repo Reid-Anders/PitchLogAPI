@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.JsonPatch;
+using Microsoft.AspNetCore.Mvc;
 using PitchLogAPI.Helpers;
 using PitchLogAPI.Model;
 using PitchLogAPI.ResourceParameters;
@@ -15,7 +16,7 @@ namespace PitchLogAPI.Services
 
         public Task<bool> UpdateArea(int ID, AreaForUpdateDTO areaForUpdate);
 
-        public Task<bool> PatchArea(int ID, JsonPatchDocument<AreaForUpdateDTO> pathDocument);
+        public Task<bool> PatchArea(int ID, JsonPatchDocument<AreaForUpdateDTO> pathDocument, ControllerBase controller);
 
         public Task<bool> DeleteArea(int ID);
     }
