@@ -49,6 +49,7 @@ builder.Services.AddScoped<IAreasRepository, AreasRepository>();
 builder.Services.AddScoped<ISectorsRepository, SectorsRepository>();
 
 builder.Services.AddScoped<IAreasService, AreasService>();
+builder.Services.AddTransient<ILinkFactory, LinkFactory>();
 
 builder.Services.AddDbContext<PitchLogContext>();
 

@@ -24,24 +24,24 @@ namespace PitchLogAPI.Services
             return new LinkDTO(_generator.GetPathByName(routeName, routeValues), rel, "GET");
         }
 
-        public LinkDTO Post(string routeName, object routeValue)
+        public LinkDTO Post(string routeName, object routeValues)
         {
-            throw new NotImplementedException();
+            return new LinkDTO(_generator.GetPathByName(routeName, routeValues), "create", "POST");
         }
 
-        public LinkDTO Put(string routeName, object routeValue)
+        public LinkDTO Put(string routeName, object routeValues)
         {
-            throw new NotImplementedException();
+            return new LinkDTO(_generator.GetPathByName(routeName, routeValues), "update_full", "PUT");
         }
 
-        public LinkDTO Patch(string routeName, object routeValue)
+        public LinkDTO Patch(string routeName, object routeValues)
         {
-            throw new NotImplementedException();
+            return new LinkDTO(_generator.GetPathByName(routeName, routeValues), "update_partial", "PATCH");
         }
 
-        public LinkDTO Delete(string routeName, object routeValue)
+        public LinkDTO Delete(string routeName, object routeValues)
         {
-            throw new NotImplementedException();
+            return new LinkDTO(_generator.GetPathByName(routeName, routeValues), "delete", "DELETE");
         }
     }
 }

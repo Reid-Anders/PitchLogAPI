@@ -7,6 +7,7 @@ using PitchLogAPI.Repositories;
 using PitchLogLib.Entities;
 using PitchLogAPI.Helpers;
 using Microsoft.Extensions.Options;
+using PitchLogAPI.Services;
 
 namespace PitchLogAPI.Controllers
 {
@@ -22,7 +23,8 @@ namespace PitchLogAPI.Controllers
 
         public SectorsController(ISectorsRepository sectorsRepository,
             IAreasRepository areasRepository,
-            IMapper mapper)
+            IMapper mapper,
+            ILinkFactory linkFactory) : base(linkFactory)
         {
             _sectorsRepository = sectorsRepository ?? throw new ArgumentNullException(nameof(sectorsRepository));
             _areasRepository = areasRepository ?? throw new ArgumentNullException(nameof(areasRepository));
@@ -180,6 +182,11 @@ namespace PitchLogAPI.Controllers
 
             var id = new { this.areaID, sectorDTO.ID };
             dto.Links.Add(new LinkDTO(Url.Link(nameof(GetSectorByID), id), "self", "GET"));
+        }
+
+        protected override IList<LinkDTO> LinkCollection(BaseResourceParameters parameters)
+        {
+            throw new NotImplementedException();
         }
     }
 }

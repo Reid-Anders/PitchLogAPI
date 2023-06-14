@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using PitchLogAPI.Controllers;
@@ -7,6 +8,7 @@ using PitchLogAPI.Model;
 using PitchLogAPI.Repositories;
 using PitchLogAPI.ResourceParameters;
 using PitchLogLib.Entities;
+using System.ComponentModel.DataAnnotations;
 
 namespace PitchLogAPI.Services
 {
@@ -29,7 +31,7 @@ namespace PitchLogAPI.Services
 
             if(area == null)
             {
-                throw new RestException($"Area with id {ID} not found.");
+                throw new RestException(AreaNotFound(ID));
             }
 
             var areaToReturn = _mapper.Map<AreaDTO>(area);
@@ -47,8 +49,10 @@ namespace PitchLogAPI.Services
         {
             if (await _areasRepository.Exists(areaForCreation.Name))
             {
-                throw new ResourceNotFoundException(_problemDetailsFactory.CreateProblemDetails(
-                    _contextAccessor.HttpContext, statusCode: 409, detail: $"Area with the name {areaForCreation.Name} already exists."));
+                throw new RestException(_problemDetailsFactory.CreateProblemDetails(
+                    _contextAccessor.HttpContext, 
+                    statusCode: 409,
+                    detail: $"Area with the name {areaForCreation.Name} already exists."));
             }
 
             var areaToCreate = _mapper.Map<Area>(areaForCreation);
@@ -57,6 +61,63 @@ namespace PitchLogAPI.Services
             await _areasRepository.SaveChanges();
 
             return _mapper.Map<AreaDTO>(areaToCreate);
+        }
+
+        public async Task<bool> UpdateArea(int ID, AreaForUpdateDTO areaForUpdate)
+        {
+            var area = await _areasRepository.GetByID(ID);
+
+            if(area == null)
+            {
+                throw new RestException(AreaNotFound(ID));
+            }
+
+            _mapper.Map(areaForUpdate, area);
+            return await _areasRepository.SaveChanges();
+        }
+
+        public async Task<bool> PatchArea(int ID, JsonPatchDocument<AreaForUpdateDTO> patchDocument)
+        {
+            var area = await _areasRepository.GetByID(ID);
+
+            if(area == null)
+            {
+                throw new RestException(AreaNotFound(ID));
+            }
+
+            var areaToPatch = _mapper.Map<AreaForUpdateDTO>(area);
+            patchDocument.ApplyTo(areaToPatch);
+
+            if(TryValidateModel(areaToPatch, out var results))
+            {
+                _mapper.Map(areaToPatch, area);
+                return await _areasRepository.SaveChanges();
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public async Task<bool> DeleteArea(int ID)
+        {
+            var area = await _areasRepository.GetByID(ID);
+
+            if(area == null)
+            {
+                throw new RestException(AreaNotFound(ID));
+            }
+
+            _areasRepository.Delete(area);
+            return await _areasRepository.SaveChanges();
+        }
+
+        private ProblemDetails AreaNotFound(int ID)
+        {
+            return _problemDetailsFactory.CreateProblemDetails(
+                _contextAccessor.HttpContext,
+                statusCode: 404,
+                detail: $"Area with id {ID} not found. Please ensure you have the correct ID");
         }
     }
 }

@@ -47,74 +47,41 @@ namespace PitchLogAPI.Controllers
         {
             var areaToReturn = await _areasService.GetByID(ID);
 
+            LinkResource(areaToReturn);
+
             return Ok(areaToReturn);
         }
 
         [HttpPost(Name = nameof(CreateArea))]
         public async Task<IActionResult> CreateArea(AreaForCreationDTO areaForCreation)
         {
+            var areaToReturn = await _areasService.CreateArea(areaForCreation);
 
-            AddLinksToResource(areaToReturn);
+            LinkResource(areaToReturn);
 
-            return CreatedAtRoute(nameof(GetAreaByID), new { areaToCreate.ID }, areaToReturn);
+            return CreatedAtRoute(nameof(GetAreaByID), new { areaToReturn.ID }, areaToReturn);
         }
 
-        //[HttpPut("{ID}", Name = nameof(UpdateAreaFull))]
-        //public async Task<IActionResult> UpdateAreaFull(int ID, AreaForUpdateDTO areaForUpdate)
-        //{
-        //    var area = await _areasRepository.GetByID(ID);
+        [HttpPut("{ID}", Name = nameof(UpdateArea))]
+        public async Task<IActionResult> UpdateArea(int ID, AreaForUpdateDTO areaForUpdate)
+        {
+            await _areasService.UpdateArea(ID, areaForUpdate);
+            return NoContent();
+        }
 
-        //    if(area == null)
-        //    {
-        //        return NotFound();
-        //    }
+        [HttpPatch("{ID}", Name = nameof(PatchArea))]
+        public async Task<IActionResult> PatchArea(int ID, JsonPatchDocument<AreaForUpdateDTO> patchDocument)
+        {
+            await _areasService.PatchArea(ID, patchDocument);
+            return NoContent();
+        }
 
-        //    _mapper.Map(areaForUpdate, area);
-        //    await _areasRepository.SaveChanges();
-
-        //    return NoContent();
-        //}
-
-        //[HttpPatch("{ID}", Name = nameof(UpdateAreaPartial))]
-        //public async Task<IActionResult> UpdateAreaPartial(int ID, JsonPatchDocument<AreaForUpdateDTO> patchDoc)
-        //{
-        //    var area = await _areasRepository.GetByID(ID);
-
-        //    if(area == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    var areaToPatch = _mapper.Map<AreaForUpdateDTO>(area);
-        //    patchDoc.ApplyTo(areaToPatch);
-
-        //    if(!TryValidateModel(areaToPatch))
-        //    {
-        //        return HttpContext.RequestServices.GetRequiredService<IOptions<ApiBehaviorOptions>>()
-        //            .Value.InvalidModelStateResponseFactory(ControllerContext);
-        //    }
-
-        //    _mapper.Map(areaToPatch, area);
-        //    await _areasRepository.SaveChanges();
-
-        //    return NoContent();
-        //}
-
-        //[HttpDelete("{ID}", Name = nameof(DeleteArea))]
-        //public async Task<IActionResult> DeleteArea(int ID)
-        //{
-        //    var areaToDelete = await _areasRepository.GetByID(ID);
-
-        //    if(areaToDelete == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    _areasRepository.Delete(areaToDelete);
-        //    await _areasRepository.SaveChanges();
-
-        //    return NoContent();
-        //}
+        [HttpDelete("{ID}", Name = nameof(DeleteArea))]
+        public async Task<IActionResult> DeleteArea(int ID)
+        {
+            await _areasService.DeleteArea(ID);
+            return NoContent();
+        }
 
         protected override void LinkResource(BaseDTO dto)
         {
@@ -125,9 +92,9 @@ namespace PitchLogAPI.Controllers
 
             var id = new { area.ID };
             area.Links.Add(_linkFactory.Get(nameof(GetAreaByID), id));
-            //area.Links.Add(new LinkDTO(Url.Link(nameof(UpdateAreaFull), id), "update", "PUT"));
-            //area.Links.Add(new LinkDTO(Url.Link(nameof(UpdateAreaPartial), id), "update_partial", "PATCH"));
-            //area.Links.Add(new LinkDTO(Url.Link(nameof(DeleteArea), id), "delete", "DELETE"));
+            area.Links.Add(_linkFactory.Put(nameof(UpdateArea), id));
+            area.Links.Add(_linkFactory.Patch(nameof(PatchArea), id));
+            area.Links.Add(_linkFactory.Delete(nameof(DeleteArea), id));
             area.Links.Add(_linkFactory.Get(nameof(SectorsController.GetSectors), new { areaID = area.ID }, "sectors"));
         }
 
@@ -136,7 +103,7 @@ namespace PitchLogAPI.Controllers
             var links = new List<LinkDTO>();
 
             links.Add(_linkFactory.Get(nameof(GetAreas), parameters));
-            //links.Add(_linkFactory.Post(nameof(CreateArea)));
+            links.Add(_linkFactory.Post(nameof(CreateArea), new { }));
 
             return links;
         }
