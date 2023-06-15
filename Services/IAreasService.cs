@@ -16,7 +16,7 @@ namespace PitchLogAPI.Services
 
         public Task<bool> UpdateArea(int ID, AreaForUpdateDTO areaForUpdate);
 
-        public Task<bool> PatchArea(int ID, JsonPatchDocument<AreaForUpdateDTO> pathDocument, ControllerBase controller);
+        public Task<bool> PatchArea(int ID, JsonPatchDocument<AreaForUpdateDTO> patchDocument, ControllerBase controller);
 
         public Task<bool> DeleteArea(int ID);
     }

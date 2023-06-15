@@ -15,20 +15,14 @@ namespace PitchLogAPI.Controllers
     [ApiController]
     public class SectorsController : BasePitchLogController
     {
-        private readonly ISectorsRepository _sectorsRepository;
-        private readonly IAreasRepository _areasRepository;
-        private readonly IMapper _mapper;
+        private readonly ISectorsService _sectorsService;
 
         private int areaID { get; set; }
 
-        public SectorsController(ISectorsRepository sectorsRepository,
-            IAreasRepository areasRepository,
-            IMapper mapper,
+        public SectorsController(ISectorsService sectorsService,
             ILinkFactory linkFactory) : base(linkFactory)
         {
-            _sectorsRepository = sectorsRepository ?? throw new ArgumentNullException(nameof(sectorsRepository));
-            _areasRepository = areasRepository ?? throw new ArgumentNullException(nameof(areasRepository));
-            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+            _sectorsService = sectorsService ?? throw new ArgumentNullException(nameof(sectorsService));
         }
 
         [HttpGet("{ID}", Name = nameof(GetSectorByID))]
