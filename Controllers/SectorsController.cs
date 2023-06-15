@@ -8,6 +8,7 @@ using PitchLogLib.Entities;
 using PitchLogAPI.Helpers;
 using Microsoft.Extensions.Options;
 using PitchLogAPI.Services;
+using System;
 
 namespace PitchLogAPI.Controllers
 {
@@ -17,7 +18,18 @@ namespace PitchLogAPI.Controllers
     {
         private readonly ISectorsService _sectorsService;
 
-        private int areaID { get; set; }
+        protected int areaID
+        {
+            get
+            {
+                var test = Lazy<int>(() =>
+                {
+                    Request.RouteValues.TryGetValue("areaID", out var value);
+                    return value == null ? 0 : (int) value;
+                });
+            }
+        }
+        private int _areaID = 0;
 
         public SectorsController(ISectorsService sectorsService,
             ILinkFactory linkFactory) : base(linkFactory)
@@ -28,21 +40,8 @@ namespace PitchLogAPI.Controllers
         [HttpGet("{ID}", Name = nameof(GetSectorByID))]
         public async Task<IActionResult> GetSectorByID(int areaID, int ID)
         {
-            if(!await _areasRepository.Exists(areaID))
-            {
-                return NotFound();
-            }
+            var sectorToReturn = await _sectorsService.GetByID(areaID, ID);
 
-            this.areaID = areaID;
-
-            var sector = await _sectorsRepository.GetByID(ID);
-
-            if(sector == null)
-            {
-                return NotFound();
-            }
-
-            var sectorToReturn = _mapper.Map<SectorDTO>(sector);
             LinkResource(sectorToReturn);
 
             return Ok(sectorToReturn);
@@ -51,21 +50,12 @@ namespace PitchLogAPI.Controllers
         [HttpGet(Name = nameof(GetSectors))]
         public async Task<IActionResult> GetSectors(int areaID, [FromQuery] SectorsResourceParameters parameters)
         {
-            if(!await _areasRepository.Exists(areaID))
-            {
-                return NotFound();
-            }
+            var sectorsToReturn = await _sectorsService.GetSectors(areaID, parameters);
 
-            this.areaID = areaID;
+            Response.AddPaginationHeaders(sectorsToReturn);
 
-            var sectors = await _sectorsRepository.GetSectors(areaID, parameters);
-            Response.AddPaginationHeaders(sectors);
-
-            var sectorsToReturn = _mapper.Map<IEnumerable<SectorDTO>>(sectors);
             LinkResources(sectorsToReturn);
-
-            var links = new List<LinkDTO>();
-            links.Add(new LinkDTO(Url.Link(nameof(GetSectors), parameters), "self", "GET"));
+            var links = LinkCollection(parameters);
 
             return Ok(new
             {
@@ -180,7 +170,13 @@ namespace PitchLogAPI.Controllers
 
         protected override IList<LinkDTO> LinkCollection(BaseResourceParameters parameters)
         {
-            throw new NotImplementedException();
+            var links = base.LinkCollection(parameters);
+            var p = parameters.Split(KeyValuePair.Create<string, object>(nameof(areaID), areaID));
+
+            links.Add(_linkFactory.Get(nameof(GetSectors), parameters));
+            links.Add(_linkFactory.Post(nameof(CreateSector), new { areaID }));
+
+            return links;
         }
     }
 }

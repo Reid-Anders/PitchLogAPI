@@ -100,7 +100,7 @@ namespace PitchLogAPI.Controllers
 
         protected override IList<LinkDTO> LinkCollection(BaseResourceParameters parameters)
         {
-            var links = new List<LinkDTO>();
+            var links = base.LinkCollection(parameters);
 
             links.Add(_linkFactory.Get(nameof(GetAreas), parameters));
             links.Add(_linkFactory.Post(nameof(CreateArea), new { }));

@@ -21,12 +21,20 @@ namespace PitchLogAPI.Services
             _problemDetailsFactory = problemDetailsFactory ?? throw new ArgumentNullException(nameof(problemDetailsFactory));
         }
 
-        public bool TryValidateModel(object model, out IList<ValidationResult> results)
+        protected ProblemDetails AreaNotFound(int ID)
         {
-            var context = new ValidationContext(model);
-            results = new List<ValidationResult>();
+            return _problemDetailsFactory.CreateProblemDetails(
+                _contextAccessor.HttpContext,
+                statusCode: 404,
+                detail: $"Area with id {ID} not found. Please ensure you have the correct ID");
+        }
 
-            return Validator.TryValidateObject(model, context, results);
+        protected ProblemDetails SectorNotFound(int areaID, int ID)
+        {
+            return _problemDetailsFactory.CreateProblemDetails(
+                _contextAccessor.HttpContext,
+                statusCode: 400,
+                detail: $"Sector with id {ID} not found for area with id {areaID}. Please ensure you have the correct ids");
         }
     }
 }

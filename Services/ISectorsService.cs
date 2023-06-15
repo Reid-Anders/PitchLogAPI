@@ -8,11 +8,11 @@ namespace PitchLogAPI.Services
 {
     public interface ISectorsService
     {
-        public Task<SectorDTO> GetByID(int ID);
+        public Task<SectorDTO> GetByID(int areaID, int ID);
 
         public Task<PagedList<SectorDTO>> GetSectors(int areaID, SectorsResourceParameters parameters);
 
-        public Task<SectorDTO> CreateArea(int areaID, SectorForCreationDTO sectorForCreation);
+        public Task<SectorDTO> CreateSector(int areaID, SectorForCreationDTO sectorForCreation);
 
         public Task<bool> UpdateSector(int areaID, int ID, SectorForUpdateDTO sectorForUpdate);
 

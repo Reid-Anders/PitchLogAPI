@@ -111,13 +111,5 @@ namespace PitchLogAPI.Services
             _areasRepository.Delete(area);
             return await _areasRepository.SaveChanges();
         }
-
-        private ProblemDetails AreaNotFound(int ID)
-        {
-            return _problemDetailsFactory.CreateProblemDetails(
-                _contextAccessor.HttpContext,
-                statusCode: 404,
-                detail: $"Area with id {ID} not found. Please ensure you have the correct ID");
-        }
     }
 }

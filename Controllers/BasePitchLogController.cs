@@ -15,7 +15,10 @@ namespace PitchLogAPI.Controllers
             _linkFactory = linkFactory ?? throw new ArgumentNullException(nameof(linkFactory));
         }
 
-        protected abstract IList<LinkDTO> LinkCollection(BaseResourceParameters parameters);
+        protected virtual IList<LinkDTO> LinkCollection(BaseResourceParameters parameters)
+        {
+            return new List<LinkDTO>();
+        }
 
         protected abstract void LinkResource(BaseDTO dto);
 

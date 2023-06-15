@@ -6,12 +6,13 @@ using PitchLogAPI.Repositories;
 using PitchLogAPI.ResourceParameters;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
+using PitchLogLib.Entities;
 
 namespace PitchLogAPI.Services
 {
     public class SectorsService : BaseService, ISectorsService
     {
-        private readonly IAreasRepository areasRepoy;
+        private readonly IAreasRepository _areasRepo;
         private readonly ISectorsRepository _sectorsRepo;
 
         public SectorsService(IAreasRepository areasRepo,
@@ -20,54 +21,92 @@ namespace PitchLogAPI.Services
             IHttpContextAccessor contextAccessor,
             ProblemDetailsFactory problemDetailsFactory) : base(mapper, contextAccessor, problemDetailsFactory)
         {
-            _are
+            _areasRepo = areasRepo ?? throw new ArgumentNullException(nameof(areasRepo));
             _sectorsRepo = sectorsRepo ?? throw new ArgumentNullException(nameof(sectorsRepo));
         }
 
-        public async Task<SectorDTO> GetByID(int ID)
+        public async Task<SectorDTO> GetByID(int areaID, int ID)
         {
-            if(!await _areas)
-            var sector = _sectorsRepo.GetByID(ID);
-
-            if(sector == null)
-            {
-                throw new RestException(SectorNotFound(ID));
-            }
-
+            var sector = await GetSector(areaID, ID);
             return _mapper.Map<SectorDTO>(sector);
         }
 
         public async Task<PagedList<SectorDTO>> GetSectors(int areaID, SectorsResourceParameters parameters)
         {
+            if(!await _areasRepo.Exists(areaID))
+            {
+                throw new RestException(AreaNotFound(areaID));
+            }
 
+            var sectors = await _sectorsRepo.GetSectors(areaID, parameters);
+            return _mapper.Map<PagedList<SectorDTO>>(sectors);
+        }
+        public async Task<SectorDTO> CreateSector(int areaID, SectorForCreationDTO sectorForCreation)
+        {
+            if(!await _areasRepo.Exists(areaID))
+            {
+                throw new RestException(AreaNotFound(areaID));
+            }
+
+            var sector = _mapper.Map<Sector>(sectorForCreation);
+            sector.AreaID = areaID;
+
+            _sectorsRepo.Create(sector);
+            await _sectorsRepo.SaveChanges();
+
+            return _mapper.Map<SectorDTO>(sector);
         }
 
         public async Task<bool> UpdateSector(int areaID, int ID, SectorForUpdateDTO sectorForUpdate)
         {
-            throw new NotImplementedException();
+            var sector = await GetSector(areaID, ID);
+
+            _mapper.Map(sectorForUpdate, sector);
+            return await _sectorsRepo.SaveChanges();
         }
 
         public async Task<bool> PatchSector(int areaID, int ID, JsonPatchDocument<SectorForUpdateDTO> patchDocument, ControllerBase controller)
         {
-            throw new NotImplementedException();
+            var sector = await GetSector(areaID, ID);
+
+            var sectorToPatch = _mapper.Map<SectorForUpdateDTO>(sector);
+            patchDocument.ApplyTo(sectorToPatch);
+
+            if(!controller.TryValidateModel(sectorToPatch))
+            {
+                throw new RestException(_problemDetailsFactory.CreateValidationProblemDetails(
+                    _contextAccessor.HttpContext,
+                    controller.ModelState));
+            }
+
+            _mapper.Map(sectorToPatch, sector);
+            return await _sectorsRepo.SaveChanges();
         }
 
-        public async Task<SectorDTO> CreateArea(int areaID, SectorForCreationDTO sectorForCreation)
-        {
-            throw new NotImplementedException();
-        }
 
         public async Task<bool> DeleteSector(int areaID, int ID)
         {
-            throw new NotImplementedException();
+            var sector = await GetSector(areaID, ID);
+
+            _sectorsRepo.Delete(sector);
+            return await _sectorsRepo.SaveChanges();
         }
 
-        private async ProblemDetails SectorNotFound(int ID)
+        private async Task<Sector> GetSector(int areaID, int ID)
         {
-            return _problemDetailsFactory.CreateProblemDetails(
-                _contextAccessor.HttpContext,
-                statusCode: 400,
-                detail: $"Sector with id {ID} not found. Please ensure you have the correct id");
+            if (!await _areasRepo.Exists(areaID))
+            {
+                throw new RestException(AreaNotFound(areaID));
+            }
+
+            var sector = await _sectorsRepo.GetByID(ID);
+
+            if (sector == null || sector.AreaID == areaID)
+            {
+                throw new RestException(SectorNotFound(areaID, ID));
+            }
+
+            return sector;
         }
     }
 }
