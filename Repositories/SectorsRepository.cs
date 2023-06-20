@@ -18,6 +18,11 @@ namespace PitchLogAPI.Repositories
             return await _context.Sectors.AnyAsync(sector => sector.ID == ID);
         }
 
+        public async Task<bool> Exists(int areaID, string name)
+        {
+            return await _context.Sectors.AnyAsync(sector => sector.Name == name && sector.AreaID == areaID);
+        }
+
         public Task<PagedList<Sector>> GetSectors(int areaID, SectorsResourceParameters parameters)
         {
             IQueryable<Sector> source = _context.Sectors.Where(sector => sector.AreaID == areaID);

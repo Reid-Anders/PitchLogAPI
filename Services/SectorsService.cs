@@ -48,6 +48,16 @@ namespace PitchLogAPI.Services
                 throw new RestException(AreaNotFound(areaID));
             }
 
+            if(await _sectorsRepo.Exists(areaID, sectorForCreation.Name))
+            {
+                throw new RestException(_problemDetailsFactory.CreateProblemDetails(
+                    _contextAccessor.HttpContext,
+                    statusCode: 409,
+                    title: "Sector already exists",
+                    detail: $"A sector with the name {sectorForCreation.Name} already exists",
+                    instance: _contextAccessor.HttpContext.Request.GetAbsoluteUri()));
+            }
+
             var sector = _mapper.Map<Sector>(sectorForCreation);
             sector.AreaID = areaID;
 
@@ -101,7 +111,7 @@ namespace PitchLogAPI.Services
 
             var sector = await _sectorsRepo.GetByID(ID);
 
-            if (sector == null || sector.AreaID == areaID)
+            if (sector == null || sector.AreaID != areaID)
             {
                 throw new RestException(SectorNotFound(areaID, ID));
             }

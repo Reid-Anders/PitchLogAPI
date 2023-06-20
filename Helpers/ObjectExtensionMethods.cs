@@ -4,7 +4,7 @@ namespace PitchLogAPI.Helpers
 {
     public static class ObjectExtensionMethods
     {
-        public static dynamic Split<T>(this T obj, params KeyValuePair<string, object>[] newProperties)
+        public static dynamic SplitAndAugment<T>(this T obj, params KeyValuePair<string, object>[] newProperties)
         {
             var propertyInfos = typeof(T).GetProperties();
             dynamic newObject = new ExpandoObject();

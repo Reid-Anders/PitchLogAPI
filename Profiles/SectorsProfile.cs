@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using PitchLogLib;
 
 namespace PitchLogAPI.Profiles
 {
@@ -9,7 +10,7 @@ namespace PitchLogAPI.Profiles
             CreateMap<PitchLogLib.Entities.Sector, Model.SectorDTO>()
                 .ForMember(dto => dto.Aspect, options =>
                 {
-                    options.MapFrom(src => src.Aspect.ToString());
+                    options.MapFrom(sector => sector.Aspect.ToString());
                 });
             CreateMap<Model.SectorForCreationDTO, PitchLogLib.Entities.Sector>();
             CreateMap<Model.SectorForUpdateDTO, PitchLogLib.Entities.Sector>().ReverseMap();

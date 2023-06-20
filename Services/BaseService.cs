@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
+using PitchLogAPI.Helpers;
 using PitchLogAPI.Model;
 using System.ComponentModel.DataAnnotations;
 
@@ -26,7 +27,8 @@ namespace PitchLogAPI.Services
             return _problemDetailsFactory.CreateProblemDetails(
                 _contextAccessor.HttpContext,
                 statusCode: 404,
-                detail: $"Area with id {ID} not found. Please ensure you have the correct ID");
+                detail: $"Area with id {ID} not found. Please ensure you have the correct ID",
+                instance: _contextAccessor.HttpContext.Request.GetAbsoluteUri());
         }
 
         protected ProblemDetails SectorNotFound(int areaID, int ID)
@@ -34,7 +36,8 @@ namespace PitchLogAPI.Services
             return _problemDetailsFactory.CreateProblemDetails(
                 _contextAccessor.HttpContext,
                 statusCode: 400,
-                detail: $"Sector with id {ID} not found for area with id {areaID}. Please ensure you have the correct ids");
+                detail: $"Sector with id {ID} not found for area with id {areaID}. Please ensure you have the correct ids",
+                instance: _contextAccessor.HttpContext.Request.GetAbsoluteUri());
         }
     }
 }

@@ -22,8 +22,9 @@ namespace PitchLogAPI.Controllers
             get
             {
                 Request.RouteValues.TryGetValue("areaID", out var value);
+                int.TryParse((string?)value, out int areaID);
 
-                _areaID = (int?) value ?? 0;
+                _areaID = areaID;
                 return _areaID;
             }
         }
@@ -70,7 +71,7 @@ namespace PitchLogAPI.Controllers
             LinkResource(sectorToReturn);
 
             return CreatedAtRoute(nameof(GetSectorByID), new { areaID, sectorToReturn.ID }, sectorToReturn);
-        }
+        }      
 
         [HttpPut("{ID}", Name = nameof(UpdateSector))]
         public async Task<IActionResult> UpdateSector(int areaID, int ID, SectorForUpdateDTO sectorForUpdate)
@@ -105,15 +106,15 @@ namespace PitchLogAPI.Controllers
             dto.Links.Add(_linkFactory.Put(nameof(UpdateSector), routeValues));
             dto.Links.Add(_linkFactory.Patch(nameof(PatchSector), routeValues));
             dto.Links.Add(_linkFactory.Delete(nameof(DeleteSector), routeValues));
-            dto.Links.Add(_linkFactory.Get(nameof(AreasController.GetAreaByID), new { areaID }));
+            dto.Links.Add(_linkFactory.Get(nameof(AreasController.GetAreaByID), new { ID = areaID }, "area"));
         }
 
         protected override IList<LinkDTO> LinkCollection(BaseResourceParameters parameters)
         {
             var links = base.LinkCollection(parameters);
-            var p = parameters.Split(KeyValuePair.Create<string, object>(nameof(areaID), areaID));
+            var allParameters = parameters.SplitAndAugment(KeyValuePair.Create<string, object>(nameof(areaID), areaID));
 
-            links.Add(_linkFactory.Get(nameof(GetSectors), parameters));
+            links.Add(_linkFactory.Get(nameof(GetSectors), allParameters));
             links.Add(_linkFactory.Post(nameof(CreateSector), new { areaID }));
 
             return links;

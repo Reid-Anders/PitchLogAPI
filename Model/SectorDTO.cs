@@ -29,6 +29,12 @@ namespace PitchLogAPI.Model
 
     public class SectorForUpdateDTO
     {
+        [MaxLength(256)]
+        public string Name { get; set; }
 
+        [Range(0, 1024)]
+        public int? Approach { get; set; }
+
+        public string Aspect { get; set; }
     }
 }
