@@ -23,7 +23,7 @@ namespace PitchLogAPI.Repositories
             return await _context.Sectors.AnyAsync(sector => sector.Name == name && sector.AreaID == areaID);
         }
 
-        public Task<PagedList<Sector>> GetSectors(int areaID, SectorsResourceParameters parameters)
+        public async Task<PagedList<Sector>> GetSectors(int areaID, SectorsResourceParameters parameters)
         {
             IQueryable<Sector> source = _context.Sectors.Where(sector => sector.AreaID == areaID);
 
@@ -49,7 +49,7 @@ namespace PitchLogAPI.Repositories
                 source = source.ApplySort(parameters.OrderBy);
             }
 
-            return PagedList<Sector>.Create(source, parameters.PageNum, parameters.PageSize);
+            return await PagedList<Sector>.Create(source, parameters.PageNum, parameters.PageSize);
         }
     }
 }
