@@ -5,9 +5,9 @@ using PitchLogData;
 
 namespace PitchLogAPI.Repositories
 {
-    public class RouteRepository : BaseRepository<PitchLogLib.Entities.Route>, IRouteRepository
+    public class RoutesRepository : BaseRepository<PitchLogLib.Entities.Route>, IRoutesRepository
     {
-        public RouteRepository(PitchLogContext context) : base(context)
+        public RoutesRepository(PitchLogContext context) : base(context)
         {
 
         }
@@ -23,21 +23,32 @@ namespace PitchLogAPI.Repositories
                 route.Name == name && route.Sector.Area.ID == areaID && route.SectorID == sectorID);
         }
 
+        public async Task<PagedList<PitchLogLib.Entities.Route>> GetRoutes(int areaID, RoutesResourceParameters parameters)
+        {
+            var source = _context.Routes.Where(route => route.Sector.AreaID == areaID);
+            return await GetRoutes(source, parameters);
+        }
+
         public async Task<PagedList<PitchLogLib.Entities.Route>> GetRoutes(int areaID, int sectorID, RoutesResourceParameters parameters)
         {
-            var source = _context.Routes.Where(route => route.SectorID == sectorID);
+            var source = _context.Routes.Where(route => route.SectorID == sectorID && route.Sector.AreaID == areaID);
+            return await GetRoutes(source, parameters);
+        }
 
-            if(parameters.Grade?.Count() > 0)
+        private async Task<PagedList<PitchLogLib.Entities.Route>> GetRoutes(IQueryable<PitchLogLib.Entities.Route> source, RoutesResourceParameters parameters)
+        {
+            if (parameters.Grade?.Count() > 0)
             {
+                //may need to be a lot more specific
                 source = source.ApplyComparisonFilter("grade", parameters.Grade);
             }
 
-            if(!string.IsNullOrEmpty(parameters.SearchQuery))
+            if (!string.IsNullOrEmpty(parameters.SearchQuery))
             {
                 source = source.Where(route => route.Name.Contains(parameters.SearchQuery));
             }
 
-            if(!string.IsNullOrEmpty(parameters.OrderBy))
+            if (!string.IsNullOrEmpty(parameters.OrderBy))
             {
                 source = source.ApplySort(parameters.OrderBy);
             }

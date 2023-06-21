@@ -39,6 +39,7 @@ namespace PitchLogAPI.Services
             }
 
             var sectors = await _sectorsRepo.GetSectors(areaID, parameters);
+
             return _mapper.Map<PagedList<SectorDTO>>(sectors);
         }
         public async Task<SectorDTO> CreateSector(int areaID, SectorForCreationDTO sectorForCreation)

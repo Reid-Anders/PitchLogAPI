@@ -13,22 +13,9 @@ namespace PitchLogAPI.Controllers
 {
     [Route("api/areas/{areaID}/sectors")]
     [ApiController]
-    public class SectorsController : BasePitchLogController
+    public class SectorsController : AreaBaseController
     {
         private readonly ISectorsService _sectorsService;
-
-        protected int areaID
-        {
-            get
-            {
-                Request.RouteValues.TryGetValue("areaID", out var value);
-                int.TryParse((string?)value, out int areaID);
-
-                _areaID = areaID;
-                return _areaID;
-            }
-        }
-        private int _areaID = 0;
 
         public SectorsController(ISectorsService sectorsService,
             ILinkFactory linkFactory) : base(linkFactory)

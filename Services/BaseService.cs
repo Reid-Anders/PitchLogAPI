@@ -35,8 +35,17 @@ namespace PitchLogAPI.Services
         {
             return _problemDetailsFactory.CreateProblemDetails(
                 _contextAccessor.HttpContext,
-                statusCode: 400,
+                statusCode: 404,
                 detail: $"Sector with id {ID} not found for area with id {areaID}. Please ensure you have the correct ids",
+                instance: _contextAccessor.HttpContext.Request.GetAbsoluteUri());
+        }
+
+        protected ProblemDetails RouteNotFound(int areaID, int sectorID, int ID)
+        {
+            return _problemDetailsFactory.CreateProblemDetails(
+                _contextAccessor.HttpContext,
+                statusCode: 404,
+                detail: $"Route with id {ID} not found for sector with id {sectorID} in area with id {areaID}. Please ensure you have the correct ids",
                 instance: _contextAccessor.HttpContext.Request.GetAbsoluteUri());
         }
     }
