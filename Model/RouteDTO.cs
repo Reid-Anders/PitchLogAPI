@@ -2,7 +2,7 @@
 {
     public class RouteDTO : ClimbDTO
     {
-        public int Length { get; set; }
+        public int? Length { get; set; }
     }
 
     public class RouteForCreationDTO
@@ -11,7 +11,7 @@
 
         public int GradeID { get; set; }
 
-        public int Length { get; set; }
+        public int? Length { get; set; }
     }
 
     public class RouteForUpdateDTO
@@ -20,7 +20,7 @@
 
         public int GradeID { get; set; }
 
-        public int Length { get; set; }
+        public int? Length { get; set; }
 
         public int SectorID { get; set; }
     }

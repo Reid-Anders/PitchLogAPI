@@ -23,6 +23,11 @@ namespace PitchLogAPI.Repositories
                 route.Name == name && route.Sector.Area.ID == areaID && route.SectorID == sectorID);
         }
 
+        public override async Task<PitchLogLib.Entities.Route> GetByID(int ID)
+        {
+            return await _context.Routes.Where(route => route.ID == ID).Include(route => route.Grade).FirstOrDefaultAsync();
+        }
+
         public async Task<PagedList<PitchLogLib.Entities.Route>> GetRoutes(int areaID, RoutesResourceParameters parameters)
         {
             var source = _context.Routes.Where(route => route.Sector.AreaID == areaID);
@@ -52,6 +57,8 @@ namespace PitchLogAPI.Repositories
             {
                 source = source.ApplySort(parameters.OrderBy);
             }
+
+            source = source.Include(route => route.Grade);
 
             return await PagedList<PitchLogLib.Entities.Route>.Create(source, parameters.PageNum, parameters.PageSize);
         }
