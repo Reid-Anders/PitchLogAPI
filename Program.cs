@@ -47,9 +47,11 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IGradesRepository, GradesRepository>();
 builder.Services.AddScoped<IAreasRepository, AreasRepository>();
 builder.Services.AddScoped<ISectorsRepository, SectorsRepository>();
+builder.Services.AddScoped<IRoutesRepository, RoutesRepository>();
 
 builder.Services.AddScoped<IAreasService, AreasService>();
 builder.Services.AddScoped<ISectorsService, SectorsService>();
+builder.Services.AddScoped<IRouteService, RouteService>();
 builder.Services.AddTransient<ILinkFactory, LinkFactory>();
 
 builder.Services.AddDbContext<PitchLogContext>();
