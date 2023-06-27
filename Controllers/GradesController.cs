@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using PitchLogAPI.Helpers;
 using PitchLogAPI.Model;
 using PitchLogAPI.ResourceParameters;
-using PitchLogAPI.Repositories;
+using PitchLogAPI.Services;
 using PitchLogData;
 using PitchLogLib;
 
@@ -16,12 +16,12 @@ namespace PitchLogAPI.Controllers
     [ApiController]
     public class GradesController : ControllerBase
     {
-        private readonly IGradesRepository _repository;
+        private readonly IGradesService _gradesService;
         private readonly IMapper _mapper;
 
-        public GradesController(IGradesRepository repository, IMapper mapper)
+        public GradesController(IGradesService gradesService, IMapper mapper)
         {
-            _repository = repository ?? throw new ArgumentNullException(nameof(repository));
+            _gradesService = gradesService ?? throw new ArgumentNullException(nameof(gradesService));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
@@ -30,63 +30,43 @@ namespace PitchLogAPI.Controllers
         [HttpCacheValidation(MustRevalidate = true)]
         public async Task<IActionResult> GetAllGrades([FromQuery] GradesResourceParameters parameters)
         {
-            return await GetGrades(parameters);
+            return Ok(await _gradesService.GetAllGrades(parameters));
         }
 
         [HttpGet("YDS")]
         public async Task<IActionResult> GetYDSGrades([FromQuery] GradesResourceParameters parameters)
         {
-            return await GetGrades(parameters, GradeType.YDS);
+            return Ok(await _gradesService.GetYDSGrades(parameters));
         }
 
         [HttpGet("vGrades")]
         public async Task<IActionResult> GetVGrades([FromQuery] GradesResourceParameters parameters)
         {
-            return await GetGrades(parameters, GradeType.VGrade);
+            return Ok(await _gradesService.GetVGrades(parameters));
         }
 
         [HttpGet("french")]
         public async Task<IActionResult> GetFrenchGrades([FromQuery] GradesResourceParameters parameters)
         {
-            return await GetGrades(parameters, GradeType.French);
-        }
-
-        [HttpGet("britishTrad")]
-        public async Task<IActionResult> GetBritishTradGrades([FromQuery] GradesResourceParameters parameters)
-        {
-            return await GetGrades(parameters, GradeType.BritishTrad);
+            return Ok(await _gradesService.GetFrenchGrades(parameters));
         }
 
         [HttpGet("font")]
         public async Task<IActionResult> GetFontGrades([FromQuery] GradesResourceParameters parameters)
         {
-            return await GetGrades(parameters, GradeType.Font);
+            return Ok(await _gradesService.GetFontGrades(parameters));
         }
 
         [HttpGet("australian")]
         public async Task<IActionResult> GetAustralianGrades([FromQuery] GradesResourceParameters parameters)
         {
-            return await GetGrades(parameters, GradeType.Australian);
+            return Ok(await _gradesService.GetAustralianGrades(parameters));
         }
 
         [HttpGet("southAfrican")]
         public async Task<IActionResult> GetSouthAfricanGrades([FromQuery] GradesResourceParameters parameters)
         {
-            return await GetGrades(parameters, GradeType.SouthAfrican);
-        }
-
-        private async Task<IActionResult> GetGrades(GradesResourceParameters parameters, GradeType type = GradeType.All)
-        {
-            var grades = await _repository.GetGrades(parameters, type);
-
-            if (grades.Count() == 0)
-            {
-                return NoContent();
-            }
-
-            Response.AddPaginationHeaders(grades, Request.GetAbsoluteUri());
-
-            return Ok(_mapper.Map<IEnumerable<GradeDTO>>(grades));
+            return Ok(await _gradesService.GetSouthAfricanGrades(parameters));
         }
     }
 }

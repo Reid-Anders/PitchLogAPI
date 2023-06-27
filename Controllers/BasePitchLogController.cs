@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PitchLogAPI.Model;
-using PitchLogAPI.Repositories;
 using PitchLogAPI.ResourceParameters;
 using PitchLogAPI.Services;
 

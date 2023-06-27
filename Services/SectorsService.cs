@@ -2,27 +2,23 @@
 using Microsoft.AspNetCore.Mvc;
 using PitchLogAPI.Helpers;
 using PitchLogAPI.Model;
-using PitchLogAPI.Repositories;
 using PitchLogAPI.ResourceParameters;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using PitchLogLib.Entities;
+using Microsoft.EntityFrameworkCore;
+using PitchLogData;
 
 namespace PitchLogAPI.Services
 {
     public class SectorsService : BaseService, ISectorsService
     {
-        private readonly IAreasRepository _areasRepo;
-        private readonly ISectorsRepository _sectorsRepo;
-
-        public SectorsService(IAreasRepository areasRepo,
-            ISectorsRepository sectorsRepo,
+        public SectorsService(PitchLogContext context,
             IMapper mapper,
             IHttpContextAccessor contextAccessor,
-            ProblemDetailsFactory problemDetailsFactory) : base(mapper, contextAccessor, problemDetailsFactory)
+            ProblemDetailsFactory problemDetailsFactory) : base(context, mapper, contextAccessor, problemDetailsFactory)
         {
-            _areasRepo = areasRepo ?? throw new ArgumentNullException(nameof(areasRepo));
-            _sectorsRepo = sectorsRepo ?? throw new ArgumentNullException(nameof(sectorsRepo));
+
         }
 
         public async Task<SectorDTO> GetByID(int areaID, int ID)
@@ -33,23 +29,41 @@ namespace PitchLogAPI.Services
 
         public async Task<PagedList<SectorDTO>> GetSectors(int areaID, SectorsResourceParameters parameters)
         {
-            if(!await _areasRepo.Exists(areaID))
+            await CheckAreaExists(areaID);
+
+            IQueryable<Sector> source = _context.Sectors.Where(sector => sector.AreaID == areaID);
+
+            if (parameters.Approach?.Count() > 0)
             {
-                throw new RestException(AreaNotFound(areaID));
+                source = source.ApplyComparisonFilter("Approach", parameters.Approach);
             }
 
-            var sectors = await _sectorsRepo.GetSectors(areaID, parameters);
+            if (!string.IsNullOrEmpty(parameters.Aspect))
+            {
+                source = source.Where(sector => sector.Aspect.ToString() == parameters.Aspect);
+            }
+
+            if (!string.IsNullOrEmpty(parameters.SearchQuery))
+            {
+                source = source.Where(sector => sector.Name.Contains(parameters.SearchQuery) ||
+                    sector.Area.Name.Contains(parameters.SearchQuery) ||
+                    sector.Area.Municipality.Contains(parameters.SearchQuery));
+            }
+
+            if (!string.IsNullOrEmpty(parameters.OrderBy))
+            {
+                source = source.ApplySort(parameters.OrderBy);
+            }
+
+            var sectors = await PagedList<Sector>.Create(source, parameters.PageNum, parameters.PageSize);
 
             return _mapper.Map<PagedList<SectorDTO>>(sectors);
         }
         public async Task<SectorDTO> CreateSector(int areaID, SectorForCreationDTO sectorForCreation)
         {
-            if(!await _areasRepo.Exists(areaID))
-            {
-                throw new RestException(AreaNotFound(areaID));
-            }
+            await CheckAreaExists(areaID);
 
-            if(await _sectorsRepo.Exists(areaID, sectorForCreation.Name))
+            if(await _context.Sectors.AnyAsync(sector => sector.AreaID == areaID && sector.Name == sectorForCreation.Name))
             {
                 throw new RestException(_problemDetailsFactory.CreateProblemDetails(
                     _contextAccessor.HttpContext,
@@ -62,8 +76,8 @@ namespace PitchLogAPI.Services
             var sector = _mapper.Map<Sector>(sectorForCreation);
             sector.AreaID = areaID;
 
-            _sectorsRepo.Create(sector);
-            await _sectorsRepo.SaveChanges();
+            _context.Sectors.Add(sector);
+            await _context.Save();
 
             return _mapper.Map<SectorDTO>(sector);
         }
@@ -73,7 +87,7 @@ namespace PitchLogAPI.Services
             var sector = await GetSector(areaID, ID);
 
             _mapper.Map(sectorForUpdate, sector);
-            return await _sectorsRepo.SaveChanges();
+            return await _context.Save();
         }
 
         public async Task<bool> PatchSector(int areaID, int ID, JsonPatchDocument<SectorForUpdateDTO> patchDocument, ControllerBase controller)
@@ -91,7 +105,7 @@ namespace PitchLogAPI.Services
             }
 
             _mapper.Map(sectorToPatch, sector);
-            return await _sectorsRepo.SaveChanges();
+            return await _context.Save();
         }
 
 
@@ -99,22 +113,29 @@ namespace PitchLogAPI.Services
         {
             var sector = await GetSector(areaID, ID);
 
-            _sectorsRepo.Delete(sector);
-            return await _sectorsRepo.SaveChanges();
+            _context.Sectors.Remove(sector);
+            return await _context.Save();
         }
 
-        private async Task<Sector> GetSector(int areaID, int ID)
+        private async Task<bool> CheckAreaExists(int areaID)
         {
-            if (!await _areasRepo.Exists(areaID))
+            if(!await _context.Areas.AnyAsync(area => area.ID == areaID)) 
             {
                 throw new RestException(AreaNotFound(areaID));
             }
 
-            var sector = await _sectorsRepo.GetByID(ID);
+            return true;
+        }
+
+        private async Task<Sector> GetSector(int areaID, int sectorID)
+        {
+            await CheckAreaExists(areaID);
+
+            var sector = await _context.Sectors.FindAsync(sectorID);
 
             if (sector == null || sector.AreaID != areaID)
             {
-                throw new RestException(SectorNotFound(areaID, ID));
+                throw new RestException(SectorNotFound(areaID, sectorID));
             }
 
             return sector;

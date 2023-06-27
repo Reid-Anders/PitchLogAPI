@@ -2,43 +2,34 @@
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.EntityFrameworkCore;
 using PitchLogAPI.Helpers;
 using PitchLogAPI.Model;
-using PitchLogAPI.Repositories;
 using PitchLogAPI.ResourceParameters;
+using PitchLogData;
 
 namespace PitchLogAPI.Services
 {
     public class RouteService : BaseService, IRouteService
     {
-        private readonly IRoutesRepository _routeRepo;
-        private readonly ISectorsRepository _sectorRepository;
-        private readonly IAreasRepository _areaRepository;
-
-        public RouteService(IRoutesRepository routeRepo,
-            ISectorsRepository sectorRepository,
-            IAreasRepository areasRepository,
+        public RouteService(PitchLogContext context,
             IMapper mapper,
             ProblemDetailsFactory problemDetailsFactory,
-            IHttpContextAccessor contextAccessor) : base(mapper, contextAccessor, problemDetailsFactory)
+            IHttpContextAccessor contextAccessor) : base(context, mapper, contextAccessor, problemDetailsFactory)
         { 
-            _routeRepo = routeRepo ?? throw new ArgumentNullException(nameof(routeRepo));
-            _sectorRepository = sectorRepository ?? throw new ArgumentNullException(nameof(sectorRepository));
-            _areaRepository = areasRepository ?? throw new ArgumentNullException(nameof(sectorRepository));
+
         }
+
         public async Task<RouteDTO> GetByID(int areaID, int sectorID, int ID)
         {
-            var route = GetRoute(areaID, sectorID, ID);
+            var route = await GetRoute(areaID, sectorID, ID);
             return _mapper.Map<RouteDTO>(route);
         }
         public async Task<PagedList<RouteDTO>> GetRoutes(int areaID, RoutesResourceParameters parameters)
         {
-            if (!await _areaRepository.Exists(areaID))
-            {
-                throw new RestException(AreaNotFound(areaID));
-            }
+            await CheckAreaExists(areaID);
 
-            var routes = await _routeRepo.GetRoutes(areaID, parameters);
+            var routes = await GetRoutes(areaID, parameters);
 
             return _mapper.Map<PagedList<RouteDTO>>(routes);
         }
@@ -47,7 +38,7 @@ namespace PitchLogAPI.Services
         {
             await CheckAreaAndSector(areaID, sectorID);
 
-            var routes = await _routeRepo.GetRoutes(areaID, sectorID, parameters);
+            var routes = await GetRoutes(areaID, sectorID, parameters);
 
             return _mapper.Map<PagedList<RouteDTO>>(routes);
         }
@@ -59,8 +50,8 @@ namespace PitchLogAPI.Services
             var route = _mapper.Map<PitchLogLib.Entities.Route>(routeForCreation);
             route.SectorID = sectorID;
 
-            _routeRepo.Create(route);
-            await _routeRepo.SaveChanges();
+            _context.Routes.Add(route);
+            await _context.Save();
 
             return _mapper.Map<RouteDTO>(route);
         }
@@ -69,7 +60,7 @@ namespace PitchLogAPI.Services
             var route = await GetRoute(areaID, sectorID, ID);
             _mapper.Map(routeForUpdate, route);
 
-            return await _routeRepo.SaveChanges();
+            return await _context.Save();
         }
 
         public async Task<bool> PatchRoute(int areaID, int sectorID, int ID, JsonPatchDocument<RouteForUpdateDTO> patchDocument, ControllerBase controller)
@@ -87,44 +78,75 @@ namespace PitchLogAPI.Services
             }
 
             _mapper.Map(routeToPatch, route);
-            return await _routeRepo.SaveChanges();
+            return await _context.Save();
         }
 
-        public async Task<bool> DeleteRoute(int areaID, int sectorID, int ID)
+        public async Task<bool> DeleteRoute(int areaID, int sectorID, int routeID)
         {
-            var route = await GetRoute(areaID, sectorID, ID);
+            var route = await GetRoute(areaID, sectorID, routeID);
 
-            _routeRepo.Delete(route);
-            return await _routeRepo.SaveChanges();
+            _context.Remove(route);
+            return await _context.Save();
         }
 
-        private async Task<PitchLogLib.Entities.Route> GetRoute(int areaID, int sectorID, int ID)
+        private async Task<PitchLogLib.Entities.Route> GetRoute(int areaID, int sectorID, int routeID)
         {
             await CheckAreaAndSector(areaID, sectorID);
 
-            var route = await _routeRepo.GetByID(ID);
+            var route = await _context.Routes.FindAsync(routeID);
 
-            if (route == null || route.SectorID != sectorID || route.Sector.AreaID != areaID)
+
+            if (route == null || route.SectorID != sectorID)
             {
-                throw new RestException(RouteNotFound(areaID, sectorID, ID));
+                throw new RestException(RouteNotFound(areaID, sectorID, routeID));
             }
 
             return route;
         }
 
-        private async Task<bool> CheckAreaAndSector(int areaID, int sectorID)
+        private async Task<bool> CheckAreaExists(int areaID)
         {
-            if (!await _areaRepository.Exists(areaID))
+            if (!await _context.Areas.AnyAsync(area => area.ID == areaID))
             {
                 throw new RestException(AreaNotFound(areaID));
             }
 
-            if (!await _sectorRepository.Exists(sectorID))
+            return true;
+        }
+
+        private async Task<bool> CheckAreaAndSector(int areaID, int sectorID)
+        {
+            await CheckAreaExists(areaID);
+
+            if (!await _context.Sectors.AnyAsync(sector => sector.Area.ID == areaID && sector.ID == sectorID))
             {
                 throw new RestException(SectorNotFound(areaID, sectorID));
             }
 
             return true;
+        }
+
+        private async Task<PagedList<PitchLogLib.Entities.Route>> GetRoutes(IQueryable<PitchLogLib.Entities.Route> source, RoutesResourceParameters parameters)
+        {
+            if (parameters.Grade?.Count() > 0)
+            {
+                //may need to be a lot more specific
+                source = source.ApplyComparisonFilter("grade", parameters.Grade);
+            }
+
+            if (!string.IsNullOrEmpty(parameters.SearchQuery))
+            {
+                source = source.Where(route => route.Name.Contains(parameters.SearchQuery));
+            }
+
+            if (!string.IsNullOrEmpty(parameters.OrderBy))
+            {
+                source = source.ApplySort(parameters.OrderBy);
+            }
+
+            source = source.Include(route => route.Grade);
+
+            return await PagedList<PitchLogLib.Entities.Route>.Create(source, parameters.PageNum, parameters.PageSize);
         }
     }
 }

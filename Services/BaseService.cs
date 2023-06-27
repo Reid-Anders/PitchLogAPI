@@ -3,20 +3,24 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using PitchLogAPI.Helpers;
 using PitchLogAPI.Model;
+using PitchLogData;
 using System.ComponentModel.DataAnnotations;
 
 namespace PitchLogAPI.Services
 {
     public abstract class BaseService
     {
+        protected readonly PitchLogContext _context;
         protected readonly IMapper _mapper;
         protected readonly IHttpContextAccessor _contextAccessor;
         protected readonly ProblemDetailsFactory _problemDetailsFactory;
 
-        public BaseService(IMapper mapper,
+        public BaseService(PitchLogContext context,
+            IMapper mapper,
             IHttpContextAccessor contextAccessor,
             ProblemDetailsFactory problemDetailsFactory)
         {
+            _context = context ?? throw new ArgumentNullException(nameof(context));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _contextAccessor = contextAccessor ?? throw new ArgumentNullException(nameof(contextAccessor));
             _problemDetailsFactory = problemDetailsFactory ?? throw new ArgumentNullException(nameof(problemDetailsFactory));

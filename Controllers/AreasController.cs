@@ -6,7 +6,6 @@ using Microsoft.Extensions.Options;
 using PitchLogAPI.Helpers;
 using PitchLogAPI.Model;
 using PitchLogAPI.ResourceParameters;
-using PitchLogAPI.Repositories;
 using PitchLogLib.Entities;
 using PitchLogAPI.Services;
 

@@ -2,11 +2,12 @@
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.EntityFrameworkCore;
 using PitchLogAPI.Controllers;
 using PitchLogAPI.Helpers;
 using PitchLogAPI.Model;
-using PitchLogAPI.Repositories;
 using PitchLogAPI.ResourceParameters;
+using PitchLogData;
 using PitchLogLib.Entities;
 using System.ComponentModel.DataAnnotations;
 
@@ -14,24 +15,22 @@ namespace PitchLogAPI.Services
 {
     public class AreasService : BaseService, IAreasService
     {
-        private readonly IAreasRepository _areasRepository;
-
-        public AreasService(IAreasRepository areasRepository, 
+        public AreasService(PitchLogContext context, 
             IMapper mapper, 
             IHttpContextAccessor contextAccessor,
             ProblemDetailsFactory problemDetailsFactory) :
-            base(mapper, contextAccessor, problemDetailsFactory)
+            base(context, mapper, contextAccessor, problemDetailsFactory)
         { 
-            _areasRepository = areasRepository ?? throw new ArgumentNullException(nameof(areasRepository));
+
         }
 
-        public async Task<AreaDTO> GetByID(int ID)
+        public async Task<AreaDTO> GetByID(int areaID)
         {
-            var area = await _areasRepository.GetByID(ID);
+            var area = await _context.Areas.FindAsync(areaID);
 
             if(area == null)
             {
-                throw new RestException(AreaNotFound(ID));
+                throw new RestException(AreaNotFound(areaID));
             }
 
             var areaToReturn = _mapper.Map<AreaDTO>(area);
@@ -41,13 +40,42 @@ namespace PitchLogAPI.Services
 
         public async Task<PagedList<AreaDTO>> GetAreas(AreasResourceParameters parameters)
         {
-            var areas = await _areasRepository.GetAreas(parameters);
+            IQueryable<Area> source = _context.Areas;
+
+            if (!string.IsNullOrEmpty(parameters.Municipality))
+            {
+                source = source.Where(area => area.Municipality == parameters.Municipality);
+            }
+
+            if (!string.IsNullOrEmpty(parameters.Region))
+            {
+                source = source.Where(area => area.Region == parameters.Region);
+            }
+
+            if (!string.IsNullOrEmpty(parameters.Country))
+            {
+                source = source.Where(area => area.Country == parameters.Country);
+            }
+
+            if (!string.IsNullOrEmpty(parameters.SearchQuery))
+            {
+                source = source.Where(area => area.Name.Contains(parameters.SearchQuery) ||
+                    area.Municipality.Contains(parameters.SearchQuery));
+            }
+
+            if (!string.IsNullOrEmpty(parameters.OrderBy))
+            {
+                source = source.ApplySort(parameters.OrderBy);
+            }
+
+            var areas = PagedList<Area>.Create(source, parameters.PageNum, parameters.PageSize);
+
             return _mapper.Map<PagedList<AreaDTO>>(areas);
         }
 
         public async Task<AreaDTO> CreateArea(AreaForCreationDTO areaForCreation)
         {
-            if (await _areasRepository.Exists(areaForCreation.Name))
+            if (await _context.Areas.AnyAsync(area => area.Name == areaForCreation.Name))
             {
                 throw new RestException(_problemDetailsFactory.CreateProblemDetails(
                     _contextAccessor.HttpContext, 
@@ -57,32 +85,32 @@ namespace PitchLogAPI.Services
 
             var areaToCreate = _mapper.Map<Area>(areaForCreation);
 
-            _areasRepository.Create(areaToCreate);
-            await _areasRepository.SaveChanges();
+            _context.Areas.Add(areaToCreate);
+            await _context.SaveChangesAsync();
 
             return _mapper.Map<AreaDTO>(areaToCreate);
         }
 
-        public async Task<bool> UpdateArea(int ID, AreaForUpdateDTO areaForUpdate)
+        public async Task<bool> UpdateArea(int areaID, AreaForUpdateDTO areaForUpdate)
         {
-            var area = await _areasRepository.GetByID(ID);
+            var area = await _context.Areas.FindAsync(areaID);
 
             if(area == null)
             {
-                throw new RestException(AreaNotFound(ID));
+                throw new RestException(AreaNotFound(areaID));
             }
 
             _mapper.Map(areaForUpdate, area);
-            return await _areasRepository.SaveChanges();
+            return await _context.Save();
         }
 
-        public async Task<bool> PatchArea(int ID, JsonPatchDocument<AreaForUpdateDTO> patchDocument, ControllerBase controller)
+        public async Task<bool> PatchArea(int areaID, JsonPatchDocument<AreaForUpdateDTO> patchDocument, ControllerBase controller)
         {
-            var area = await _areasRepository.GetByID(ID);
+            var area = await _context.Areas.FindAsync(areaID);
 
             if(area == null)
             {
-                throw new RestException(AreaNotFound(ID));
+                throw new RestException(AreaNotFound(areaID));
             }
 
             var areaToPatch = _mapper.Map<AreaForUpdateDTO>(area);
@@ -96,20 +124,20 @@ namespace PitchLogAPI.Services
             }
 
             _mapper.Map(areaToPatch, area);
-            return await _areasRepository.SaveChanges();
+            return await _context.Save();
         }
 
-        public async Task<bool> DeleteArea(int ID)
+        public async Task<bool> DeleteArea(int areaID)
         {
-            var area = await _areasRepository.GetByID(ID);
+            var area = await _context.Areas.FindAsync(areaID);
 
             if(area == null)
             {
-                throw new RestException(AreaNotFound(ID));
+                throw new RestException(AreaNotFound(areaID));
             }
 
-            _areasRepository.Delete(area);
-            return await _areasRepository.SaveChanges();
+            _context.Remove(area);
+            return await _context.Save();
         }
     }
 }

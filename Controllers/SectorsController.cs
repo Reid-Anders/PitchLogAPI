@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using PitchLogAPI.Model;
 using PitchLogAPI.ResourceParameters;
-using PitchLogAPI.Repositories;
 using PitchLogLib.Entities;
 using PitchLogAPI.Helpers;
 using Microsoft.Extensions.Options;

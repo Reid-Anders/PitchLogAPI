@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Serialization;
-using PitchLogAPI.Repositories;
 using PitchLogData;
 using Marvin.Cache.Headers;
 using PitchLogAPI.Services;
@@ -44,14 +43,11 @@ builder.Services.AddControllers(configure =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddScoped<IGradesRepository, GradesRepository>();
-builder.Services.AddScoped<IAreasRepository, AreasRepository>();
-builder.Services.AddScoped<ISectorsRepository, SectorsRepository>();
-builder.Services.AddScoped<IRoutesRepository, RoutesRepository>();
-
 builder.Services.AddScoped<IAreasService, AreasService>();
 builder.Services.AddScoped<ISectorsService, SectorsService>();
 builder.Services.AddScoped<IRouteService, RouteService>();
+builder.Services.AddScoped<IGradesService, GradesService>();
+
 builder.Services.AddTransient<ILinkFactory, LinkFactory>();
 
 builder.Services.AddDbContext<PitchLogContext>();
