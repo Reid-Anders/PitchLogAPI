@@ -7,6 +7,7 @@ using PitchLogAPI.Helpers;
 using PitchLogAPI.Model;
 using PitchLogAPI.ResourceParameters;
 using PitchLogData;
+using System.Linq.Expressions;
 
 namespace PitchLogAPI.Services
 {
@@ -29,7 +30,7 @@ namespace PitchLogAPI.Services
         {
             await CheckAreaExists(areaID);
 
-            var routes = await GetRoutes(areaID, parameters);
+            var routes = await QueryRoutes(_context.Routes.Where(route => route.Sector.AreaID == areaID), parameters);
 
             return _mapper.Map<PagedList<RouteDTO>>(routes);
         }
@@ -38,7 +39,8 @@ namespace PitchLogAPI.Services
         {
             await CheckAreaAndSector(areaID, sectorID);
 
-            var routes = await GetRoutes(areaID, sectorID, parameters);
+            var routes = await QueryRoutes(_context.Routes.Where(route => route.Sector.AreaID == areaID &&
+                route.SectorID == sectorID), parameters);
 
             return _mapper.Map<PagedList<RouteDTO>>(routes);
         }
@@ -47,8 +49,19 @@ namespace PitchLogAPI.Services
         {
             await CheckAreaAndSector(areaID, sectorID);
 
+            var grade = await _context.Grades.FindAsync(routeForCreation.GradeID);
+
+            if(grade == null)
+            {
+                throw new RestException(_problemDetailsFactory.CreateProblemDetails(
+                    _contextAccessor.HttpContext,
+                    statusCode: 400,
+                    detail: $"Route with id {routeForCreation.GradeID} not found. Please ensure you have the correct id"));
+            }
+
             var route = _mapper.Map<PitchLogLib.Entities.Route>(routeForCreation);
             route.SectorID = sectorID;
+            route.Grade = grade;
 
             _context.Routes.Add(route);
             await _context.Save();
@@ -93,8 +106,7 @@ namespace PitchLogAPI.Services
         {
             await CheckAreaAndSector(areaID, sectorID);
 
-            var route = await _context.Routes.FindAsync(routeID);
-
+            var route = await _context.Routes.Include(route => route.Grade).FirstAsync(route => route.ID == routeID);
 
             if (route == null || route.SectorID != sectorID)
             {
@@ -126,12 +138,11 @@ namespace PitchLogAPI.Services
             return true;
         }
 
-        private async Task<PagedList<PitchLogLib.Entities.Route>> GetRoutes(IQueryable<PitchLogLib.Entities.Route> source, RoutesResourceParameters parameters)
+        private async Task<PagedList<PitchLogLib.Entities.Route>> QueryRoutes(IQueryable<PitchLogLib.Entities.Route> source, RoutesResourceParameters parameters)
         {
             if (parameters.Grade?.Count() > 0)
             {
-                //may need to be a lot more specific
-                source = source.ApplyComparisonFilter("grade", parameters.Grade);
+                source = source.Where(route => parameters.Grade.Contains(route.Grade.Value));
             }
 
             if (!string.IsNullOrEmpty(parameters.SearchQuery))

@@ -68,7 +68,7 @@ namespace PitchLogAPI.Services
                 source = source.ApplySort(parameters.OrderBy);
             }
 
-            var areas = PagedList<Area>.Create(source, parameters.PageNum, parameters.PageSize);
+            var areas = await PagedList<Area>.Create(source, parameters.PageNum, parameters.PageSize);
 
             return _mapper.Map<PagedList<AreaDTO>>(areas);
         }

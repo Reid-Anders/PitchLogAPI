@@ -95,20 +95,29 @@ namespace PitchLogAPI.Controllers
                 return;
             }
 
-            var routeValues = new { areaID, sectorID, routeDTO.ID };
+            var routeValues = new { areaID, sectorID = routeDTO.SectorID, routeDTO.ID };
             dto.Links.Add(_linkFactory.Get(nameof(GetRouteByID), routeValues));
             dto.Links.Add(_linkFactory.Put(nameof(UpdateRoute), routeValues));
             dto.Links.Add(_linkFactory.Patch(nameof(PatchRoute), routeValues));
             dto.Links.Add(_linkFactory.Delete(nameof(DeleteRoute), routeValues));
-            dto.Links.Add(_linkFactory.Get(nameof(SectorsController.GetSectorByID), new { areaID, ID = sectorID }, "sector"));
+            dto.Links.Add(_linkFactory.Get(nameof(SectorsController.GetSectorByID), new { areaID, sectorID = routeDTO.SectorID }, "sector"));
         }
 
         protected override IList<LinkDTO> LinkCollection(BaseResourceParameters parameters)
         {
             var links = base.LinkCollection(parameters);
-            var allParameters = parameters.SplitAndAugment(
-                KeyValuePair.Create<string, object>(nameof(areaID), areaID),
-                KeyValuePair.Create<string, object>(nameof(sectorID), sectorID));
+
+            var paramPairs = new List<KeyValuePair<string, object>>()
+            {
+                KeyValuePair.Create<string, object>(nameof(areaID), areaID)
+            };
+
+            if(sectorID != 0)
+            {
+                paramPairs.Add(KeyValuePair.Create<string, object>(nameof(sectorID), sectorID));
+            }
+
+            var allParameters = parameters.SplitAndAugment(paramPairs);
 
             if(sectorID == 0)
             {

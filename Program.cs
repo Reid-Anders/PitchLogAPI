@@ -43,10 +43,10 @@ builder.Services.AddControllers(configure =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddScoped<IGradesService, GradesService>();
 builder.Services.AddScoped<IAreasService, AreasService>();
 builder.Services.AddScoped<ISectorsService, SectorsService>();
 builder.Services.AddScoped<IRouteService, RouteService>();
-builder.Services.AddScoped<IGradesService, GradesService>();
 
 builder.Services.AddTransient<ILinkFactory, LinkFactory>();
 

@@ -23,9 +23,9 @@ namespace PitchLogAPI.Controllers
         }
 
         [HttpGet("{ID}", Name = nameof(GetSectorByID))]
-        public async Task<IActionResult> GetSectorByID(int areaID, int ID)
+        public async Task<IActionResult> GetSectorByID(int areaID, int sectorID)
         {
-            var sectorToReturn = await _sectorsService.GetByID(areaID, ID);
+            var sectorToReturn = await _sectorsService.GetByID(areaID, sectorID);
 
             LinkResource(sectorToReturn);
 
@@ -60,23 +60,23 @@ namespace PitchLogAPI.Controllers
         }      
 
         [HttpPut("{ID}", Name = nameof(UpdateSector))]
-        public async Task<IActionResult> UpdateSector(int areaID, int ID, SectorForUpdateDTO sectorForUpdate)
+        public async Task<IActionResult> UpdateSector(int areaID, int sectorID, SectorForUpdateDTO sectorForUpdate)
         {
-            await _sectorsService.UpdateSector(areaID, ID, sectorForUpdate);
+            await _sectorsService.UpdateSector(areaID, sectorID, sectorForUpdate);
             return NoContent();
         }
 
         [HttpPatch("{ID}", Name = nameof(PatchSector))]
-        public async Task<IActionResult> PatchSector(int areaID, int ID, JsonPatchDocument<SectorForUpdateDTO> patchDocument)
+        public async Task<IActionResult> PatchSector(int areaID, int sectorID, JsonPatchDocument<SectorForUpdateDTO> patchDocument)
         {
-            await _sectorsService.PatchSector(areaID, ID, patchDocument, this);
+            await _sectorsService.PatchSector(areaID, sectorID, patchDocument, this);
             return NoContent();
         }
 
         [HttpDelete("{ID}", Name = nameof(DeleteSector))]
-        public async Task<IActionResult> DeleteSector(int areaID, int ID)
+        public async Task<IActionResult> DeleteSector(int areaID, int sectorID)
         {
-            await _sectorsService.DeleteSector(areaID, ID);
+            await _sectorsService.DeleteSector(areaID, sectorID);
             return NoContent();
         }
 

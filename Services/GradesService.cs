@@ -13,7 +13,7 @@ namespace PitchLogAPI.Services
     {
         public GradesService(PitchLogContext context,
             IMapper mapper,
-            HttpContextAccessor accessor,
+            IHttpContextAccessor accessor,
             ProblemDetailsFactory problemDetailsFactory) : base(context, mapper, accessor, problemDetailsFactory)
         {
 
