@@ -31,7 +31,7 @@ namespace PitchLogAPI.Controllers
             var areasToReturn = await _areasService.GetAreas(parameters);
             Response.AddPaginationHeaders(areasToReturn, Request.GetAbsoluteUri());
 
-            LinkResources(areasToReturn);
+            await LinkResources(areasToReturn);
             var links = LinkCollection(parameters);
             
             return Ok(new
@@ -46,7 +46,7 @@ namespace PitchLogAPI.Controllers
         {
             var areaToReturn = await _areasService.GetByID(ID);
 
-            LinkResource(areaToReturn);
+            await LinkResource(areaToReturn);
 
             return Ok(areaToReturn);
         }
@@ -56,7 +56,7 @@ namespace PitchLogAPI.Controllers
         {
             var areaToReturn = await _areasService.CreateArea(areaForCreation);
 
-            LinkResource(areaToReturn);
+            await LinkResource(areaToReturn);
 
             return CreatedAtRoute(nameof(GetAreaByID), new { areaToReturn.ID }, areaToReturn);
         }
@@ -82,19 +82,34 @@ namespace PitchLogAPI.Controllers
             return NoContent();
         }
 
-        protected override void LinkResource(BaseDTO dto)
+        protected override async Task<bool> LinkResource(BaseDTO dto)
         {
             if(dto is not AreaDTO area)
             {
-                return;
+                return false;
             }
 
             var id = new { area.ID };
             area.Links.Add(_linkFactory.Get(nameof(GetAreaByID), id));
             area.Links.Add(_linkFactory.Put(nameof(UpdateArea), id));
             area.Links.Add(_linkFactory.Patch(nameof(PatchArea), id));
-            area.Links.Add(_linkFactory.Delete(nameof(DeleteArea), id));
+
+            bool anySectors = await _areasService.AnySectors(area.ID);
+            bool anyRoutes = await _areasService.AnyRoutes(area.ID);
+
+            if (!anySectors && !anyRoutes)
+            {
+                area.Links.Add(_linkFactory.Delete(nameof(DeleteArea), id));
+            }
+
             area.Links.Add(_linkFactory.Get(nameof(SectorsController.GetSectors), new { areaID = area.ID }, "sectors"));
+
+            if (anyRoutes)
+            {
+                area.Links.Add(_linkFactory.Get(nameof(RoutesController.GetAreaRoutes), new { areaID = area.ID }, "routes"));
+            }
+
+            return true;
         }
 
         protected override IList<LinkDTO> LinkCollection(BaseResourceParameters parameters)

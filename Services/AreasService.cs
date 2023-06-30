@@ -10,6 +10,7 @@ using PitchLogAPI.ResourceParameters;
 using PitchLogData;
 using PitchLogLib.Entities;
 using System.ComponentModel.DataAnnotations;
+using System.Net;
 
 namespace PitchLogAPI.Services
 {
@@ -136,8 +137,37 @@ namespace PitchLogAPI.Services
                 throw new RestException(AreaNotFound(areaID));
             }
 
+            if(await AnySectors(areaID)) {
+                throw new RestException(_problemDetailsFactory.CreateProblemDetails(
+                    _contextAccessor.HttpContext,
+                    statusCode: 405,
+                    title: "Method not allowed",
+                    detail: "DELETE not allowed on an area with existing sectors",
+                    instance: _contextAccessor.HttpContext.Request.GetAbsoluteUri()));
+            }
+
+            if(await AnyRoutes(areaID))
+            {
+                throw new RestException(_problemDetailsFactory.CreateProblemDetails(
+                    _contextAccessor.HttpContext,
+                    statusCode: 405,
+                    title: "Method not allowed",
+                    detail: "DELETE not allowed on an area with existing routes",
+                    instance: _contextAccessor.HttpContext.Request.GetAbsoluteUri()));
+            }
+
             _context.Remove(area);
             return await _context.Save();
+        }
+
+        public async Task<bool> AnySectors(int areaID)
+        {
+            return await _context.Sectors.AnyAsync(sector => sector.AreaID == areaID);
+        }
+
+        public async Task<bool> AnyRoutes(int areaID)
+        {
+            return await _context.Routes.AnyAsync(route => route.Sector.AreaID == areaID);
         }
     }
 }

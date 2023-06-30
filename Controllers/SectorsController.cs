@@ -27,7 +27,7 @@ namespace PitchLogAPI.Controllers
         {
             var sectorToReturn = await _sectorsService.GetByID(areaID, sectorID);
 
-            LinkResource(sectorToReturn);
+            await LinkResource(sectorToReturn);
 
             return Ok(sectorToReturn);
         }
@@ -39,7 +39,7 @@ namespace PitchLogAPI.Controllers
 
             Response.AddPaginationHeaders(sectorsToReturn);
 
-            LinkResources(sectorsToReturn);
+            await LinkResources(sectorsToReturn);
             var links = LinkCollection(parameters);
 
             return Ok(new
@@ -54,7 +54,7 @@ namespace PitchLogAPI.Controllers
         {
             var sectorToReturn = await _sectorsService.CreateSector(areaID, sectorForCreation);
 
-            LinkResource(sectorToReturn);
+            await LinkResource(sectorToReturn);
 
             return CreatedAtRoute(nameof(GetSectorByID), new { areaID, sectorToReturn.ID }, sectorToReturn);
         }      
@@ -80,11 +80,11 @@ namespace PitchLogAPI.Controllers
             return NoContent();
         }
 
-        protected override void LinkResource(BaseDTO dto)
+        protected override Task<bool> LinkResource(BaseDTO dto)
         {
             if(dto is not SectorDTO sectorDTO)
             {
-                return;
+                return Task.FromResult(false);
             }
 
             var routeValues = new { areaID, sectorDTO.ID };
@@ -93,6 +93,8 @@ namespace PitchLogAPI.Controllers
             dto.Links.Add(_linkFactory.Patch(nameof(PatchSector), routeValues));
             dto.Links.Add(_linkFactory.Delete(nameof(DeleteSector), routeValues));
             dto.Links.Add(_linkFactory.Get(nameof(AreasController.GetAreaByID), new { ID = areaID }, "area"));
+
+            return Task.FromResult(true);
         }
 
         protected override IList<LinkDTO> LinkCollection(BaseResourceParameters parameters)

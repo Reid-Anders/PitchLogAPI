@@ -19,14 +19,16 @@ namespace PitchLogAPI.Controllers
             return new List<LinkDTO>();
         }
 
-        protected abstract void LinkResource(BaseDTO dto);
+        protected abstract Task<bool> LinkResource(BaseDTO dto);
 
-        protected virtual void LinkResources(IEnumerable<BaseDTO> dtoList)
+        protected virtual async Task<bool> LinkResources(IEnumerable<BaseDTO> dtoList)
         {
             foreach(var dto in dtoList)
             {
-                LinkResource(dto);
+                await LinkResource(dto);
             }
+
+            return true;
         }
 
     }
